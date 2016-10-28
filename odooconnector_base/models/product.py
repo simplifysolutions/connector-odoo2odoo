@@ -57,15 +57,16 @@ class ProductImportMapper(OdooImportMapper):
     _model_name = ['odooconnector.product.product']
     _map_child_class = OdooImportMapChild
 
-    direct = [('name', 'name'), ('name_template', 'name_template'),
+    direct = [('name', 'name'),
+              # ('name_template', 'name_template'),
               ('type', 'type'),
               ('purchase_ok', 'purchase_ok'), ('sale_ok', 'sale_ok'),
-              ('lst_price', 'lst_price'), ('standard_price', 'standard_price'),
+              ('lst_price', 'list_price'), ('standard_price', 'standard_price'),
               ('ean13', 'ean13'), ('default_code', 'default_code'),
               ('description', 'description')]
 
     children = [
-        ('seller_ids', 'seller_ids', 'odooconnector.product.supplierinfo'),
+        # ('seller_ids', 'seller_ids', 'odooconnector.product.supplierinfo'),
     ]
 
     def _map_child(self, map_record, from_attr, to_attr, model_name):
@@ -123,7 +124,8 @@ class ProductImportMapper(OdooImportMapper):
 class ProductSimpleImportMapper(OdooImportMapper):
     _model_name = ['odooconnector.product.product']
 
-    direct = [('name', 'name'), ('name_template', 'name_template'),
+    direct = [('name', 'name'),
+              # ('name_template', 'name_template'),
               ('description', 'description')]
 
 
@@ -172,12 +174,17 @@ class ProductExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.product']
     _map_child_class = OdooExportMapChild
 
-    direct = [('name', 'name'), ('name_template', 'name_template'),
+    direct = [('name', 'name'),
+              # ('name_template', 'name_template'),
               ('type', 'type'),
-              ('purchase_ok', 'purchase_ok'), ('sale_ok', 'sale_ok'),
-              ('lst_price', 'lst_price'), ('standard_price', 'standard_price'),
-              ('ean13', 'ean13'), ('default_code', 'default_code'),
-              ('description', 'description')]
+              ('purchase_ok', 'purchase_ok'),
+              ('sale_ok', 'sale_ok'),
+              ('lst_price', 'lst_price'),
+              ('standard_price', 'standard_price'),
+              ('ean13', 'ean13'),
+              ('default_code', 'default_code'),
+              ('description', 'description')
+              ]
 
     children = [
         ('seller_ids', 'seller_ids', 'odooconnector.product.supplierinfo')

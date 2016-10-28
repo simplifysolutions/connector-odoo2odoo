@@ -3,7 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 import logging
 try:
-    import oerplib
+    import odoorpc
 except ImportError:
     pass
 from openerp.addons.connector.connector import ConnectorEnvironment
@@ -29,15 +29,13 @@ class APIConnectorEnvironment(ConnectorEnvironment):
 def get_odoo_api(hostname, port, database, protocol, username, password):
     """ Create a OERP instance for further reuse """
     # TODO(MJ): Switch to OdooRPC and test performance in load test
-    api = oerplib.OERP(
-        server=hostname,
-        database=database,
-        protocol='xmlrpc',  # jsonrpc is not implemented in oerplib
-        port=port
-    )
-    api.login(username, password)
+    api = odoorpc.ODOO(hostname, port=port)
+
+    api.login(database, username, password)
+
     _logger.info('Created a new Odoo API instance')
     return api
+    # return api.env.user
 
 
 def get_environment(session, model_name, backend_id, api=None):

@@ -4,7 +4,7 @@
 import logging
 
 try:
-    import oerplib.error
+    import odoorpc.error
 except ImportError:
     pass
 
@@ -42,7 +42,7 @@ class OdooAdapterGeneric(CRUDAdapter):
             model_name = self.model.openerp_id._name
 
         _logger.debug('Adapter is using model "%s" for call', model_name)
-        return self.api.get(model_name)
+        return self.api[model_name]
 
     def _api_reset_context(self, old_context, new_context):
         """ Reset the APIs context to the old_context """
@@ -72,7 +72,7 @@ class OdooAdapterGeneric(CRUDAdapter):
         _logger.debug('Adapter is using backend_record "%s:%s"',
                       self.backend_record, self.backend_record.name)
         try:
-            self.api = self.connector_env.api
+            self.api = self.connector_env.api.env
 
             # if a context is given we update the api context
             # TODO(MJ): Use a contextmanager for context changing!
@@ -99,7 +99,7 @@ class OdooAdapterGeneric(CRUDAdapter):
 
             return result
 
-        except oerplib.error.RPCError as e:
+        except odoorpc.error.RPCError as e:
             _logger.exception(e)
 
         except Exception as e:

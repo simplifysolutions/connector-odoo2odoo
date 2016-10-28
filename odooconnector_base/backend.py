@@ -5,6 +5,7 @@ import openerp.addons.connector.backend as backend
 
 
 oc_odoo = backend.Backend('odoo')
+oc_odoo1000 = backend.Backend(parent=oc_odoo, version='1000')
 oc_odoo900 = backend.Backend(parent=oc_odoo, version='900')
 oc_odoo800 = backend.Backend(parent=oc_odoo, version='800')
 oc_odoo700 = backend.Backend(parent=oc_odoo, version='700')

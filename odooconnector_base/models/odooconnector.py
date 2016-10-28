@@ -52,7 +52,8 @@ class OdooBackend(models.Model):
         """ Available versions for this backend """
         return [('700', 'Version 7.00'),
                 ('800', 'Version 8.00'),
-                ('900', 'Version 9.00')]
+                ('900', 'Version 9.00'),
+                ('1000', 'Version 10.00')]
 
     active = fields.Boolean(
         string='Active',

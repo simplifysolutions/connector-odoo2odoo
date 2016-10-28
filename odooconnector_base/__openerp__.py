@@ -12,7 +12,7 @@
     'application': True,
     'installable': True,
     'external_dependencies': {
-        'python': ['oerplib'],
+        'python': ['odoorpc'],
     },
     'depends': [
         'base',
