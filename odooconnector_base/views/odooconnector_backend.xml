@@ -33,6 +33,10 @@
                         <button name="import_product_uom"
                                 type="object"
                                 string="Import Product UoMs" />
+
+                        <button name="export_partners"
+                                type="object"
+                                string="Export Partners" />
                     </header>
                     <sheet>
                         <label for="name"/>
@@ -42,6 +46,7 @@
                         <group>
                             <group>
                                 <field name="version" />
+                                <field name="ssl" />
                                 <field name="active" />
                             </group>
                             <group>

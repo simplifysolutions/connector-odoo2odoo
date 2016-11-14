@@ -29,7 +29,7 @@ class APIConnectorEnvironment(ConnectorEnvironment):
 def get_odoo_api(hostname, port, database, protocol, username, password):
     """ Create a OERP instance for further reuse """
     # TODO(MJ): Switch to OdooRPC and test performance in load test
-    api = odoorpc.ODOO(hostname, port=port)
+    api = odoorpc.ODOO(hostname, port=port, protocol=protocol)
 
     api.login(database, username, password)
 
@@ -43,8 +43,11 @@ def get_environment(session, model_name, backend_id, api=None):
     backend_record = session.env['odooconnector.backend'].browse(backend_id)
 
     if not api:
+        protocol = 'jsonrpc'
+        if backend_record.ssl:
+            protocol = 'jsonrpc+ssl'
         api = get_odoo_api(backend_record.hostname, backend_record.port,
-                           backend_record.database, 'xmlrpc',
+                           backend_record.database, protocol,
                            backend_record.username, backend_record.password)
 
     env = APIConnectorEnvironment(backend_record, session, model_name, api=api)

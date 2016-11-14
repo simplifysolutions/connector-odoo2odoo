@@ -8,7 +8,8 @@ from openerp.addons.connector.unit.mapper import (mapping, ExportMapper)
 
 from ..unit.import_synchronizer import (OdooImporter,
                                         DirectBatchImporter)
-from ..unit.export_synchronizer import (OdooExporter)
+from ..unit.export_synchronizer import (OdooExporter,
+                                        DirectBatchExporter)
 from ..unit.mapper import OdooImportMapper
 from ..backend import oc_odoo
 
@@ -118,3 +119,11 @@ class PartnerExportMapper(ExportMapper):
               ('comment', 'comment'), ('supplier', 'supplier'),
               ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
               ('date', 'date'), ('notify_email', 'notify_email')]
+
+@oc_odoo
+class PartnerBatchExporter(DirectBatchExporter):
+    _model_name = ['odooconnector.res.partner']
+
+    def _get_remote_model(self):
+        return 'res.partner'
+

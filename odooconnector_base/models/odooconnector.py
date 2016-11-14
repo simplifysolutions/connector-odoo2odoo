@@ -5,6 +5,7 @@ from openerp import models, fields, api
 from openerp.addons.connector.session import ConnectorSession
 
 from ..unit.import_synchronizer import import_batch
+from ..unit.export_synchronizer import export_batch
 
 
 class OdooBinding(models.AbstractModel):
@@ -78,6 +79,7 @@ class OdooBackend(models.Model):
     database = fields.Char(string='Database', required=True)
     hostname = fields.Char(string='Hostname', required=True)
     port = fields.Integer(string='Port', required=True)
+    ssl = fields.Boolean(string="SSL")
 
     default_lang_id = fields.Many2one(
         comodel_name='res.lang',
@@ -167,3 +169,19 @@ class OdooBackend(models.Model):
         for backend in self:
             import_batch(session, 'odooconnector.product.uom', backend.id)
         return True
+
+    @api.multi
+    def export_partners(self):
+        """ Import partners from external system """
+        session = ConnectorSession(self.env.cr, self.env.uid,
+                                   context=self.env.context)
+        for backend in self:
+            filters = self.default_export_partner_domain
+            if filters and isinstance(filters, str):
+                filters = eval(filters)
+
+            export_batch(session, 'odooconnector.res.partner', backend.id,
+                         filters)
+
+        return True
+

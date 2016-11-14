@@ -4,6 +4,7 @@
 import time
 import logging
 
+from openerp.tools.safe_eval import safe_eval
 from openerp.addons.connector.queue.job import job
 from openerp.addons.connector.unit.synchronizer import Exporter
 from openerp.addons.connector.exception import InvalidDataError
@@ -31,7 +32,9 @@ class OdooExporter(Exporter):
         :param domain: domain expression, e.g. [('id', '>', '10')]
         """
         # TODO(MJ): Replace this eval expression!
-        if record in record.search(eval(domain)):
+        results = self.env[self._get_remote_model()].search(
+                safe_eval(domain))
+        if record.id in results.ids:
             return True
         return False
 
@@ -54,22 +57,25 @@ class OdooExporter(Exporter):
         :param binding_id: identifier for the binding record
         """
         time_start = time.time()
-        self.binding_id = binding_id
+        self.binding_id = binding_id.id
 
-        record = self.model.browse(binding_id)
+        record = self.model.browse(binding_id.id)
 
         if not self._pre_export_check(record):
             _logger.info('Record did not pass pre-export check.')
             return "Pre-Export check was not successfull"
 
+        print 1111
         mapped_record = self.mapper.map_record(record)
 
         remote_model = self._get_remote_model()
+        print 2222
         external_id = self.binder.to_backend(self.binding_id)
         record_created = False
 
         # Create a new record or update the existing record
         if external_id:
+            print 'YUP'
             _logger.debug('Found binding %s', external_id)
             data = mapped_record.values()
             result = self.backend_adapter.write(
@@ -84,6 +90,7 @@ class OdooExporter(Exporter):
                 return 'Could not export'
 
         else:
+            print 'BLAH'
             _logger.debug('No binding found, creating a new record')
             data = mapped_record.values(for_create=True)
             external_id = self.backend_adapter.create(
@@ -149,7 +156,7 @@ class TranslationExporter(Exporter):
         binding = self.model.browse(binding_id)
 
         if not binding:
-            _logger.debug('No binding found for %s, skip translation import',
+            _logger.debug('No binding found for %s, skip translation export',
                           binding_id)
             return
 
@@ -171,6 +178,46 @@ class TranslationExporter(Exporter):
                 external_id, data, context={'lang': language}
             )
 
+class BatchExporter(Exporter):
+    """ Search for a list of items to export. Export them directly or delay
+    the export of each item (see DirectBatchExporter, DelayedBatchExporter)
+    """
+
+    def run(self, filters=None):
+        """ Run the synchronization """
+        _logger.debug("BatchExporter started")
+        #FIXME: Clunky and ugh with the eval
+        record_ids = self.env[self._get_remote_model()].search(
+            safe_eval(filters))
+
+        for record_id in record_ids:
+            self._export_record(record_id, api=self.connector_env.api)
+
+    def _export_record(self, record_id, api=None):
+        """ Export the record directly or delay it.
+
+        Method must be implemented in sub-classes.
+        """
+        raise NotImplementedError
+
+class DirectBatchExporter(BatchExporter):
+    """ Export the records directly. Do not delay export to jobs. """
+
+    _model_name = None
+
+    def _export_record(self, record_id, api=None):
+        """ Export record directly """
+        export_record(self.session, self.model._name, self.backend_record.id,
+                      record_id, api=api)
+
+
+@job
+def export_batch(session, model_name, backend_id, filters=None):
+    """ Prepare a batch export of records """
+    _logger.debug("Export batch for '{}'".format(model_name))
+    env = get_environment(session, model_name, backend_id)
+    exporter = env.get_connector_unit(BatchExporter)
+    exporter.run(filters=filters)
 
 @job(default_channel='root.odooconnector')
 def export_record(session, model_name, backend_id, binding_id,
@@ -178,6 +225,6 @@ def export_record(session, model_name, backend_id, binding_id,
     _logger.debug('Export record for "%s"', model_name)
     env = get_environment(session, model_name, backend_id, api=api)
 
-    # TODO: LANGUAGE STUFF
+    #TODO: LANGUAGE STUFF
     exporter = env.get_connector_unit(OdooExporter)
     exporter.run(binding_id)
