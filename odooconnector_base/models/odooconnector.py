@@ -7,6 +7,8 @@ from openerp.addons.connector.session import ConnectorSession
 from ..unit.import_synchronizer import import_batch
 from ..unit.export_synchronizer import export_batch
 
+from ..events import create_default_binding
+
 
 class OdooBinding(models.AbstractModel):
     """ Abstract Model for the Bindings.
@@ -172,16 +174,20 @@ class OdooBackend(models.Model):
 
     @api.multi
     def export_partners(self):
-        """ Import partners from external system """
-        session = ConnectorSession(self.env.cr, self.env.uid,
-                                   context=self.env.context)
-        for backend in self:
-            filters = self.default_export_partner_domain
-            if filters and isinstance(filters, str):
-                filters = eval(filters)
-
-            export_batch(session, 'odooconnector.res.partner', backend.id,
-                         filters)
-
+        """ Export partners to external system """
+        self._export_records('res.partner')
         return True
 
+    @api.multi
+    def export_products(self):
+        """ Export products to external system """
+        self._export_records('product.product')
+        return True
+
+    @api.model
+    def _export_records(self, model):
+        session = ConnectorSession(self.env.cr, self.env.uid,
+                                   context=self.env.context)
+        records = self.env[model].search([('oc_bind_ids','=',False)])
+        for record in records:
+            create_default_binding(session, model, record.id)

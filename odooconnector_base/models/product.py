@@ -244,6 +244,9 @@ class ProductExporter(OdooExporter):
     _model_name = ['odooconnector.product.product']
     _base_mapper = ProductExportMapper
 
+    def _get_remote_model(self):
+        return 'product.product'
+
     def _pre_export_check(self, record):
         """ Run some checks before exporting the record """
         if not self.backend_record.default_export_product:

@@ -34,7 +34,7 @@ class OdooExporter(Exporter):
         # TODO(MJ): Replace this eval expression!
         results = self.env[self._get_remote_model()].search(
                 safe_eval(domain))
-        if record.id in results.ids:
+        if record.openerp_id.id in results.ids:
             return True
         return False
 
@@ -57,25 +57,22 @@ class OdooExporter(Exporter):
         :param binding_id: identifier for the binding record
         """
         time_start = time.time()
-        self.binding_id = binding_id.id
+        self.binding_id = binding_id
 
-        record = self.model.browse(binding_id.id)
+        record = self.model.browse(binding_id)
 
         if not self._pre_export_check(record):
             _logger.info('Record did not pass pre-export check.')
             return "Pre-Export check was not successfull"
 
-        print 1111
         mapped_record = self.mapper.map_record(record)
 
         remote_model = self._get_remote_model()
-        print 2222
         external_id = self.binder.to_backend(self.binding_id)
         record_created = False
 
         # Create a new record or update the existing record
         if external_id:
-            print 'YUP'
             _logger.debug('Found binding %s', external_id)
             data = mapped_record.values()
             result = self.backend_adapter.write(
@@ -88,9 +85,7 @@ class OdooExporter(Exporter):
                 #       thats is not available in the ic backend.
                 # raise InvalidDataError("Something went wrong while writing.")
                 return 'Could not export'
-
         else:
-            print 'BLAH'
             _logger.debug('No binding found, creating a new record')
             data = mapped_record.values(for_create=True)
             external_id = self.backend_adapter.create(

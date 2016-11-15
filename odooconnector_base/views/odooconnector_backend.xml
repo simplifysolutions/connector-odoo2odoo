@@ -37,6 +37,10 @@
                         <button name="export_partners"
                                 type="object"
                                 string="Export Partners" />
+
+                        <button name="export_products"
+                                type="object"
+                                string="Export Products" />
                     </header>
                     <sheet>
                         <label for="name"/>
