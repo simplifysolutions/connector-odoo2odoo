@@ -17,6 +17,7 @@
     'depends': [
         'base',
         'product',
+        'crm',
         'connector',
     ],
     'data': [
@@ -25,6 +26,7 @@
         'views/odooconnector_backend.xml',
         'views/partner.xml',
         'views/product.xml',
+        'views/crm_lead.xml',
         'views/product_uom.xml',
     ],
     'demo': [

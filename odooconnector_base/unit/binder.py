@@ -14,6 +14,7 @@ class OdooModelBinder(Binder):
     _model_name = [
         'odooconnector.res.partner',
         'odooconnector.product.product',
+        'odooconnector.crm.lead',
         'odooconnector.product.supplierinfo',
         'odooconnector.product.uom',
     ]

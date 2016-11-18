@@ -34,7 +34,8 @@ on_record_write.fire = new_fire(original_fire_write)
 
 
 @on_record_create(model_names=['odooconnector.product.product',
-                               'odooconnector.res.partner'])
+                               'odooconnector.res.partner',
+                               'odooconnector.crm.lead'])
 def export_odooconnector_object(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return
@@ -45,7 +46,8 @@ def export_odooconnector_object(session, model_name, record_id, fields=None):
 
 
 @on_record_create(model_names=['product.product',
-                               'res.partner'])
+                               'res.partner',
+                               'crm.lead'])
 def create_default_binding(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return
@@ -108,7 +110,7 @@ def update_product(session, model_name, record_id, fields=None):
             sync_object(session, ic_model_name, binding.id, fields)
 
 
-@on_record_write(model_names=['res.partner'])
+@on_record_write(model_names=['res.partner','crm.lead'])
 def update_partner(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return

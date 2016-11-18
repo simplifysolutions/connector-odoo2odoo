@@ -26,17 +26,25 @@
                                 type="object"
                                 string="Import Partners" />
 
-                        <button name="import_products"
+                        <button name="import_leads"
                                 type="object"
-                                string="Import Products" />
+                                string="Import Leads" />
 
-                        <button name="import_product_uom"
-                                type="object"
-                                string="Import Product UoMs" />
+                        <!--<button name="import_products"-->
+                                <!--type="object"-->
+                                <!--string="Import Products" />-->
+
+                        <!--<button name="import_product_uom"-->
+                                <!--type="object"-->
+                                <!--string="Import Product UoMs" />-->
 
                         <button name="export_partners"
                                 type="object"
                                 string="Export Partners" />
+
+                        <button name="export_leads"
+                                type="object"
+                                string="Export Leads" />
 
                         <button name="export_products"
                                 type="object"
@@ -69,7 +77,8 @@
 
                                 <group string="Import">
                                     <field name="import_partner_domain_filter" />
-                                    <field name="import_product_domain_filter" />
+                                    <field name="import_lead_domain_filter" />
+                                    <!--<field name="import_product_domain_filter" />-->
 
                                 </group>
                                 <group string="Export">
@@ -79,6 +88,9 @@
                                     <field name="default_export_partner"/>
                                     <field name="default_export_partner_domain"
                                         attrs="{'invisible': [('default_export_partner', '=', False)]}"/>
+                                    <field name="default_export_lead"/>
+                                    <field name="default_export_lead_domain"
+                                        attrs="{'invisible': [('default_export_lead', '=', False)]}"/>
                                     <field name="default_export_product"/>
                                     <field name="default_export_product_domain"
                                         attrs="{'invisible': [('default_export_product', '=', False)]}"/>
