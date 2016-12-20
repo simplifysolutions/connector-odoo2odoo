@@ -144,6 +144,15 @@ class OdooBackend(models.Model):
         default='[]'
     )
 
+    default_export_product_pricelist = fields.Boolean(
+        string='Export Pricelist'
+    )
+
+    default_export_product_pricelist_domain = fields.Char(
+        string='Export Pricelist Domain',
+        default='[]'
+    )
+
     @api.multi
     def import_partners(self):
         """ Import partners from external system """
@@ -216,6 +225,12 @@ class OdooBackend(models.Model):
     def export_leads(self):
         """ Export Leads to external system """
         self._export_records('crm.lead')
+        return True
+
+    @api.multi
+    def export_pricelist(self):
+        """ Export Pricelist to external system """
+        self._export_records('product.pricelist')
         return True
 
     @api.model

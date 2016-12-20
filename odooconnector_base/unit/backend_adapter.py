@@ -115,7 +115,8 @@ class OdooAdapter(OdooAdapterGeneric):
                    'odooconnector.product.uom',
                    'odooconnector.product.supplierinfo',
                    'pricelist.partnerinfo',
-                   'product.uom'
+                   'product.uom',
+                   'odooconnector.product.pricelist',
                    ]
 
     def create(self, data, **kwargs):
