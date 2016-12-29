@@ -8,7 +8,8 @@ from openerp.addons.connector.unit.mapper import (mapping, ExportMapper)
 
 from ..unit.import_synchronizer import (OdooImporter, DirectBatchImporter,
                                         TranslationImporter)
-from ..unit.export_synchronizer import (OdooExporter, TranslationExporter)
+from ..unit.export_synchronizer import (OdooExporter, TranslationExporter,
+                                        AddCheckpoint)
 from ..unit.mapper import (OdooImportMapper, OdooImportMapChild,
                            OdooExportMapChild)
 from ..unit.backend_adapter import OdooAdapter
@@ -218,7 +219,10 @@ class ProductPricelistExporter(OdooExporter):
         """ Run some checks before exporting the record """
         if not self.backend_record.default_export_product_pricelist:
             return False
-
+        for each_item in record.version_item_ids:
+            if each_item.base!=1 and round(each_item.price_discount,2)!=-1.00:
+                checkpoint = self.unit_for(AddCheckpoint)
+                checkpoint.run(record.id)
         domain = self.backend_record.default_export_product_pricelist_domain
         return self._pre_export_domain_check(record, domain)
 
