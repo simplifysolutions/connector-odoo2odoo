@@ -14,8 +14,12 @@ class OdooModelBinder(Binder):
     _model_name = [
         'odooconnector.res.partner',
         'odooconnector.product.product',
+        'odooconnector.crm.lead',
         'odooconnector.product.supplierinfo',
         'odooconnector.product.uom',
+        'odooconnector.product.pricelist',
+        'odooconnector.product.pricelist.version',
+        'odooconnector.product.pricelist.item',
     ]
 
     def to_openerp(self, external_id, unwrap=False, browse=False):
