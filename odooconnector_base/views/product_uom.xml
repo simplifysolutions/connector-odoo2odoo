@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
 
                 <xpath expr="/form/group" position="after">
-                    <groupi groups="odooconnector_base.group_oc_manager">
+                    <group groups="odooconnector_base.group_oc_manager">
                         <field name="oc_bind_ids">
                             <tree string="Bindings" editable="bottom">
                                 <field name="backend_id" />
