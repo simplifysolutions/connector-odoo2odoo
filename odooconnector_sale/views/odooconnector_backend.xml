@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_odooconnector_so_backend_form" model="ir.ui.view">
+            <field name="name">odooconnector.so.backend.form</field>
+            <field name="model">odooconnector.backend</field>
+            <field name="inherit_id" ref="odooconnector_base.view_odooconnector_backend_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header/button[last()]" position="after">
+                    <button name="export_so"
+                                type="object"
+                                string="Export Sale order" />
+                </xpath>
+                <xpath expr="//notebook/page[last()]" position="after">
+                    <page string="Sale Order">
+                        <group string="Import">
+                            <field name="default_import_so_domain"/>
+                        </group>
+                        <group string="Export">
+                            <field name="default_export_sale_order"/>
+                            <field name="default_export_so_domain"
+                            attrs="{'invisible': [('default_export_sale_order', '=', False)]}"/>
+                        </group>
+                    </page>
+                </xpath>
+                
+            </field>
+        </record>
+
+    </data>
+</openerp>

@@ -7,7 +7,7 @@ try:
 except ImportError:
     pass
 from openerp.addons.connector.connector import ConnectorEnvironment
-
+from openerp.addons.connector.checkpoint import checkpoint
 
 _logger = logging.getLogger(__name__)
 
@@ -58,3 +58,19 @@ def get_environment(session, model_name, backend_id, api=None):
     else:
         with env.session.change_context(lang=lang_code):
             return env
+
+def add_checkpoint(session, model_name, record_id, backend_id):
+    """ Add a row in the model ``connector.checkpoint`` for a record,
+    meaning it has to be reviewed by a user.
+
+    :param session: current session
+    :type session: :class:`openerp.addons.connector.session.ConnectorSession`
+    :param model_name: name of the model of the record to be reviewed
+    :type model_name: str
+    :param record_id: ID of the record to be reviewed
+    :type record_id: int
+    :param backend_id: ID of the Odoo Backend
+    :type backend_id: int
+    """
+    return checkpoint.add_checkpoint(session, model_name, record_id,
+                                     'odooconnector.backend', backend_id)

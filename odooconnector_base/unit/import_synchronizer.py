@@ -33,7 +33,7 @@ class OdooImporter(Importer):
         """ Return the raw data """
         return self.backend_adapter.read(self.external_id,
                                          fields=fields,
-                                         model_name=self._ic_model_name)
+                                         model_name=self._ic_model_name)[0]
 
     def _is_uptodate(self, binding):
         """ Check if the import is uptodate and should be skipped.

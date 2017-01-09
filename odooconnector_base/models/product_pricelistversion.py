@@ -123,12 +123,8 @@ class ProductPricelistItemExportMapper(ExportMapper):
 
     @mapping
     def price_discount(self, record):
-        return {
-            'price_discount': record.price_discount or 0,
-            'price_surcharge': record.price_surcharge or 0,
-            'price_round': record.price_round or 0,
-            'price_min_margin': record.price_min_margin or 0,
-            'price_max_margin': record.price_max_margin or 0,
-            # As we don't have Fixed or percentage as per ver 10
-            'compute_price': 'formula',
-        }
+        if record.base==1 and round(record.price_discount,2)<=-1.00:
+            return {
+            'compute_price':'fixed',
+            'fixed_price':record.price_surcharge or 0
+            }

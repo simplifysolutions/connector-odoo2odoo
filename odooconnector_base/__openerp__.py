@@ -22,6 +22,7 @@
     ],
     'data': [
         'security/odooconnector_base_security.xml',
+        'security/ir.model.access.csv',
         'data/odooconnector_base.xml',
         'views/odooconnector_backend.xml',
         'views/partner.xml',

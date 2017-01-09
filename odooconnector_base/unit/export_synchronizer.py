@@ -8,8 +8,10 @@ from openerp.tools.safe_eval import safe_eval
 from openerp.addons.connector.queue.job import job
 from openerp.addons.connector.unit.synchronizer import Exporter
 from openerp.addons.connector.exception import InvalidDataError
+from openerp.addons.connector.connector import ConnectorUnit
+from ..backend import oc_odoo
 
-from ..connector import get_environment
+from ..connector import get_environment, add_checkpoint
 
 
 _logger = logging.getLogger(__name__)
@@ -204,6 +206,23 @@ class DirectBatchExporter(BatchExporter):
         """ Export record directly """
         export_record(self.session, self.model._name, self.backend_record.id,
                       record_id, api=api)
+
+@oc_odoo
+class AddCheckpoint(ConnectorUnit):
+    """ Add a connector.checkpoint on the underlying model
+    (not the magento.* but the _inherits'ed model) """
+
+    _model_name = ['odooconnector.product.pricelist.item',
+    'odooconnector.product.pricelist'
+                   ]
+    
+    def run(self, openerp_binding_id):
+        binding = self.model.browse(openerp_binding_id)
+        record = binding.openerp_id
+        add_checkpoint(self.session,
+                       record._model._name,
+                       record.id,
+                       self.backend_record.id)
 
 
 @job
