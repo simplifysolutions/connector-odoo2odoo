@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# © 2015 Malte Jacobi (maljac @ github)
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+
 import logging
-from openerp import models, fields,api
+from openerp import models, fields
 from openerp.addons.odooconnector_base.backend import oc_odoo
 from openerp.addons.odooconnector_base.unit.backend_adapter import OdooAdapter
 
@@ -88,6 +87,23 @@ class SaleOrderImporter(DirectBatchImporter):
 class SaleOrderImporter(OdooImporter):
     _model_name = ['odooconnector.sale.order']
 
+    def _import_dependencies(self):
+        record = self.external_record
+
+        if record.get('partner_id'):
+            binder = self.binder_for('odooconnector.res.partner')
+            partner_id = binder.to_openerp(record['partner_id'][0], unwrap=True)
+            if not partner_id:
+                self._import_dependency(record['partner_id'][0],
+                                        'odooconnector.res.partner')
+#        if record.get('pricelist_id'):
+#            binder = self.binder_for('odooconnector.product.pricelist')
+#            pricelist_id = binder.to_openerp(record['pricelist_id'][0], unwrap=True)
+#            print"pricelist_idpricelist_idpricelist_idpricelist_id",pricelist_id
+#            if not pricelist_id:
+#                self._import_dependency(record['pricelist_id'][0],
+#                                        'odooconnector.product.pricelist')
+
 @oc_odoo
 class SaleOrderImportMapper(OdooImportMapper):
     _model_name = 'odooconnector.sale.order'
@@ -101,23 +117,33 @@ class SaleOrderImportMapper(OdooImportMapper):
     children = [
         ('order_line', 'order_line', 'odooconnector.sale.order.line')
     ]
+
+
     def _map_child(self, map_record, from_attr, to_attr, model_name):
         source = map_record.source
         child_records = source[from_attr]
         detail_records = []
+        tax_ids={}
         _logger.debug('Loop over order lines...')
         for child_record in child_records:
             adapter = self.unit_for(OdooAdapter, model_name)
             detail_record = adapter.read(child_record)[0]
+            if detail_record['tax_id']:
+                for each_tax in detail_record['tax_id']:
+                    index=detail_record['tax_id'].index(each_tax)
+                    if each_tax not in tax_ids:
+                        adapter = self.unit_for(OdooAdapter)
+                        tax_record = adapter.read(each_tax,
+                                         model_name='account.tax')[0]
+                        tax_val=(tax_record['id'],tax_record['name'])
+                        tax_ids.update({each_tax:tax_val})
+                    detail_record['tax_id'][index]=tax_ids[each_tax]
             detail_records.append(detail_record)
         mapper = self._get_map_child_unit(model_name)
-
         items = mapper.get_items(
             detail_records, map_record, to_attr, options=self.options
         )
-
         _logger.debug('Order lines "%s": %s', model_name, items)
-
         return items
 
 
@@ -244,6 +270,10 @@ class SaleOrderImportMapper(OdooImportMapper):
         limit=1)
         if source:
             return{'source_id':source.id}
+
+    @mapping
+    def order_policy(self,record):
+        return{'order_policy':'picking'}
         
 @oc_odoo
 class SaleOrderLineBatchImporter(DirectBatchImporter):
@@ -263,27 +293,6 @@ class SaleOrderLineImportMapper(OdooImportMapper):
         ('product_uom_qty', 'product_uom_qty'),
     ]
 
-#    children=[
-#    ('tax_id', 'tax_id', 'odooconnector.account.tax')
-#    ]
-
-    def _map_child(self, map_record, from_attr, to_attr, model_name):
-        source = map_record.source
-        child_records = source[from_attr]
-        detail_records = []
-        _logger.debug('Loop over taxes ...')
-        for child_record in child_records:
-            adapter = self.unit_for(OdooAdapter,'odooconnector.account.tax')
-            detail_record = adapter.read(child_record)[0]
-            detail_records.append(detail_record)
-        mapper = self._get_map_child_unit(model_name)
-        items = mapper.get_items(
-            detail_records, map_record, to_attr, options=self.options
-        )
-        _logger.debug('Order lines "%s": %s', model_name, items)
-
-        return items
-
     @mapping
     def product_id(self,record):
         binder = self.binder_for('odooconnector.product.product')
@@ -300,6 +309,19 @@ class SaleOrderLineImportMapper(OdooImportMapper):
         limit=1)
         if product_uom:
             return{'product_uom':product_uom.id}
+
+    @mapping
+    def tax_id(self,record):
+        if not record.get('tax_id'):
+            return
+        tax_id=[]
+        for each_tax in record.get('tax_id'):
+            tax=self.env['account.tax'].search(
+            [('name','=',each_tax[1])],
+            limit=1)
+            if tax:
+                tax_id.append(tax.id)
+        return {'tax_id':[(6, 0, tax_id)]}
 
 @oc_odoo
 class SaleOrderExporter(OdooExporter):

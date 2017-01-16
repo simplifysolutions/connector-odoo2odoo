@@ -7,24 +7,27 @@
             <field name="model">odooconnector.backend</field>
             <field name="inherit_id" ref="odooconnector_base.view_odooconnector_backend_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//header/button[last()]" position="after">
-                    <button name="export_so"
-                                type="object"
-                                string="Export Sale order" />
-                </xpath>
                 <xpath expr="//notebook/page[last()]" position="after">
                     <page string="Sale Order">
                         <group string="Import">
-                            <field name="default_import_so_domain"/>
+                            <group>
+                                <field name="default_import_so_domain"/>
+                                <field name="import_so_since"/>
+                            </group>
+                            <group>
+                                <button name="export_so"
+                                        type="object"
+                                        string="Export Sale order" />
+                            </group>
                         </group>
                         <group string="Export">
                             <field name="default_export_sale_order"/>
                             <field name="default_export_so_domain"
-                            attrs="{'invisible': [('default_export_sale_order', '=', False)]}"/>
+                                   attrs="{'invisible': [('default_export_sale_order', '=', False)]}"/>
                         </group>
                     </page>
                 </xpath>
-                
+
             </field>
         </record>
 

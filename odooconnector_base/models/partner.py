@@ -75,6 +75,13 @@ class PartnerImportMapper(OdooImportMapper):
         if country:
             return {'country_id': country.id}
 
+    @mapping
+    def property_pricelist_id(self,record):
+        binder = self.binder_for('odooconnector.product.pricelist')
+        pricelist_id = binder.to_openerp(record['property_pricelist_id'][0], wrap=True)
+        if pricelist_id:
+            return {'property_product_pricelist': pricelist_id}
+
 
 @oc_odoo
 class PartnerExporter(OdooExporter):
@@ -119,6 +126,13 @@ class PartnerExportMapper(ExportMapper):
               ('comment', 'comment'), ('supplier', 'supplier'),
               ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
               ('date', 'date'), ('notify_email', 'notify_email')]
+
+    @mapping
+    def property_pricelist_id(self,record):
+        binder = self.binder_for('odooconnector.product.pricelist')
+        pricelist_id = binder.to_backend(record.openerp_id.property_product_pricelist.id, wrap=True)
+        if pricelist_id:
+            return {'property_product_pricelist': pricelist_id}
 
 @oc_odoo
 class PartnerBatchExporter(DirectBatchExporter):

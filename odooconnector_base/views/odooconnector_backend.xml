@@ -96,7 +96,7 @@
                                         attrs="{'invisible': [('default_export_product', '=', False)]}"/>
                                     <field name="default_export_product_pricelist"/>
                                     <field name="default_export_product_pricelist_domain"
-                                        attrs="{'invisible': [('default_export_product', '=', False)]}"/>
+                                        attrs="{'invisible': [('default_export_product_pricelist', '=', False)]}"/>
                                 </group>
 
                             </page>
