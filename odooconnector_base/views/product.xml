@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
 
                 <xpath expr="//page[last()]" position="after">
-                    <page string="Odoo Connector">
+                    <page string="Odoo Connector" groups="odooconnector_base.group_oc_user">
                         <field name="oc_bind_ids">
                             <tree string="Bindings" editable="bottom">
                                 <field name="backend_id" />
