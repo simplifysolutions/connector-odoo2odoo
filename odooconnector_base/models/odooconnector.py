@@ -93,7 +93,7 @@ class OdooBackend(models.Model):
     )
 
     import_lead_domain_filter = fields.Char(
-        string='Partner domain filter',
+        string='Lead domain filter',
     )
 
     import_product_domain_filter = fields.Char(
@@ -132,6 +132,15 @@ class OdooBackend(models.Model):
 
     default_export_product_domain = fields.Char(
         string='Export Products Domain',
+        default='[]'
+    )
+
+    default_export_product_uom = fields.Boolean(
+        string='Export Product UOMs'
+    )
+
+    default_export_product_uom_domain = fields.Char(
+        string='Export Product UOMs Domain',
         default='[]'
     )
 
@@ -222,6 +231,12 @@ class OdooBackend(models.Model):
         return True
 
     @api.multi
+    def export_product_uom(self):
+        """ Export products to external system """
+        self._export_records('product.uom')
+        return True
+
+    @api.multi
     def export_leads(self):
         """ Export Leads to external system """
         self._export_records('crm.lead')
@@ -232,6 +247,7 @@ class OdooBackend(models.Model):
         """ Export Pricelist to external system """
         self._export_records('product.pricelist')
         return True
+
 
     @api.model
     def _export_records(self, model):

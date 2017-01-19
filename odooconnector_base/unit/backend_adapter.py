@@ -117,6 +117,7 @@ class OdooAdapter(OdooAdapterGeneric):
                    'pricelist.partnerinfo',
                    'product.uom',
                    'odooconnector.product.pricelist',
+                   'odooconnector.product.pricelist.item',
                    ]
 
     def create(self, data, **kwargs):
@@ -137,7 +138,6 @@ class OdooAdapter(OdooAdapterGeneric):
         """ Search according filters and return list of ids """
         if not filters:
             filters = []
-
         # context = kwargs.get('context', None)
         # model_name = kwargs.get('model_name', None)
         result = self._call('search', filters, **kwargs)

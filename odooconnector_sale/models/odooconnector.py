@@ -22,6 +22,14 @@ class OdooBackend(models.Model):
         string='Export Sale Order Domain',
         default='[]'
     )
+    default_export_account_tax = fields.Boolean(
+        string='Default Account Tax export backend',
+        help='Use this backend as default for the SO process.'
+    )
+    default_export_account_tax_domain = fields.Char(
+        string='Export Account Tax Domain',
+        default='[]'
+    )
     default_import_so_domain = fields.Char(
         string='Import Sale Order Domain',
         default='[]'
@@ -46,9 +54,19 @@ class OdooBackend(models.Model):
             backend.write({'import_so_since':datetime.datetime.now()})
 
         return True
-    
+
+    @api.multi
+    def import_so(self):
+        return self.import_sale_order()
+
     @api.multi
     def export_so(self):
         """ Export sale orders to external system """
         self._export_records('sale.order')
+        return True
+
+    @api.multi
+    def export_taxes(self):
+        """ Export sale orders to external system """
+        self._export_records('account.tax')
         return True

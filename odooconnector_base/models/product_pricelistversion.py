@@ -6,6 +6,8 @@ from openerp import models, fields
 from openerp.addons.connector.unit.mapper import mapping
 from openerp.addons.connector.unit.mapper import ImportMapper, ExportMapper
 from ..unit.import_synchronizer import (OdooImporter, DirectBatchImporter)
+from ..unit.export_synchronizer import (OdooExporter, TranslationExporter,
+                                        AddCheckpoint)
 from ..unit.mapper import (OdooImportMapper, OdooImportMapChild,
                            OdooExportMapChild)
 from ..unit.backend_adapter import OdooAdapter
@@ -98,6 +100,14 @@ class ProductPricelistVersionExportMapper(ExportMapper):
               ('date_end', 'date_end')
               ]
 
+@oc_odoo
+class ProductPricelistItemTranslationExporter(TranslationExporter):
+    _model_name = ['odooconnector.product.pricelist.item']
+
+@oc_odoo
+class ProductPricelistItemTranslationExportMapper(ExportMapper):
+    _model_name = ['odooconnector.product.pricelist']
+    direct = [('name', 'name')]
 
 @oc_odoo
 class ProductPricelistItemExportMapper(ExportMapper):
@@ -128,3 +138,38 @@ class ProductPricelistItemExportMapper(ExportMapper):
             'compute_price':'fixed',
             'fixed_price':record.price_surcharge or 0
             }
+
+@oc_odoo
+class ProductPricelistItemExporter(OdooExporter):
+    _model_name = ['odooconnector.product.pricelist.item']
+    _base_mapper = ProductPricelistItemExportMapper
+
+    def _get_remote_model(self):
+        return 'product.pricelist.item'
+
+    def _pre_export_check(self, record):
+        """ Run some checks before exporting the record """
+        if not self.backend_record.default_export_product_pricelist:
+            return False
+        if record.openerp_id.base==1 and round(record.openerp_id.price_discount,2)!=-1.00:
+            checkpoint = self.unit_for(AddCheckpoint)
+            checkpoint.run(record.id)
+        domain = self.backend_record.default_export_product_pricelist_domain
+        return self._pre_export_domain_check(record, domain)
+
+    def _after_export(self, record_created):
+        _logger.debug('Product Pricelist exporter: _after_export called')
+
+        if record_created:
+            record_id = self.binder.unwrap_binding(self.binding_id)
+            data = {
+                'backend_id': self.backend_record.export_backend_id,
+                'openerp_id': self.external_id,
+                'external_id': record_id,
+                'exported_record': False
+            }
+            self.backend_adapter.create(
+                data,
+                model_name='odooconnector.product.pricelist.item',
+                context={'connector_no_export': True}
+            )

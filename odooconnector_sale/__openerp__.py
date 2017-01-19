@@ -20,6 +20,7 @@
     ],
     'data': [
         'views/sale_view.xml',
+        'views/account_tax_view.xml',
         'views/odooconnector_backend.xml',
         'views/scheduler.xml',
     ],

@@ -7,6 +7,6 @@ class OdooAdapterSale(OdooAdapter):
     _model_name = [
         'odooconnector.sale.order',
         'odooconnector.sale.order.line',
-        'odooconnector.account.tax'
+        'odooconnector.account.tax',
     ]
 

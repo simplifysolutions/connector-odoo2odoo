@@ -210,11 +210,11 @@ class DirectBatchExporter(BatchExporter):
 @oc_odoo
 class AddCheckpoint(ConnectorUnit):
     """ Add a connector.checkpoint on the underlying model
-    (not the magento.* but the _inherits'ed model) """
+    (not the odooconnector.* but the _inherits'ed model) """
 
     _model_name = ['odooconnector.product.pricelist.item',
-    'odooconnector.product.pricelist'
-                   ]
+                   'odooconnector.product.pricelist',
+                ]
     
     def run(self, openerp_binding_id):
         binding = self.model.browse(openerp_binding_id)
