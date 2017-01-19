@@ -3,11 +3,16 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 import logging
 from openerp import models, fields
-from openerp.addons.connector.unit.mapper import (mapping)
+from openerp.addons.connector.unit.mapper import (mapping,ExportMapper)
+from ..unit.backend_adapter import OdooAdapter
+
 from ..unit.import_synchronizer import (OdooImporter,
                                         DirectBatchImporter,
                                         TranslationImporter)
-from ..unit.mapper import (OdooImportMapper)
+from ..unit.export_synchronizer import (OdooExporter,
+                                        DirectBatchExporter,
+                                        TranslationExporter)
+from ..unit.mapper import (OdooImportMapper,)
 from ..backend import oc_odoo
 
 
@@ -107,3 +112,40 @@ class ProductUomImporter(OdooImporter):
             binding.id,
             mapper_class=ProductUomSimpleImportMapper
         )
+
+@oc_odoo
+class ProductUomBatchExporter(DirectBatchExporter):
+    _model_name = ['odooconnector.product.uom']
+    _ic_model_name = 'product.uom'
+
+
+@oc_odoo
+class ProductUomTranslationExporter(TranslationExporter):
+    _model_name = ['odooconnector.product.uom']
+    _ic_model_name = 'product.uom'
+
+@oc_odoo
+class ProductUomExportMapper(ExportMapper):
+    _model_name = ['odooconnector.product.uom']
+
+    direct = [('name', 'name'), ('active', 'active'),
+              ('uom_type', 'uom_type'), ('factor', 'factor'),
+              ('rounding', 'rounding'), ]
+
+    @mapping
+    def category_id(self, record):
+        if not record.category_id:
+            return
+
+        adapter = self.unit_for(OdooAdapter)
+        category_id = adapter.search([('name','=',record.category_id.name)],
+            model_name='product.uom.categ')[0]
+        if category_id:
+            return {'category_id': category_id}
+
+
+@oc_odoo
+class ProductUomExporter(OdooExporter):
+    _model_name = ['odooconnector.product.uom']
+    _ic_model_name = 'product.uom'
+    _base_mapper = ProductUomExportMapper
