@@ -13,17 +13,30 @@
                             <group>
                                 <field name="default_import_so_domain"/>
                                 <field name="import_so_since"/>
+
+                                <button name="import_so"
+                                        type="object"
+                                        string="Import Sale order" />
                             </group>
+                            <group></group>
+                        </group>
+                        <group string="Export">
                             <group>
+                                <field name="default_export_sale_order"/>
+                                <field name="default_export_so_domain"
+                                       attrs="{'invisible': [('default_export_sale_order', '=', False)]}"/>
                                 <button name="export_so"
                                         type="object"
                                         string="Export Sale order" />
                             </group>
-                        </group>
-                        <group string="Export">
-                            <field name="default_export_sale_order"/>
-                            <field name="default_export_so_domain"
-                                   attrs="{'invisible': [('default_export_sale_order', '=', False)]}"/>
+                            <group>
+                                <field name="default_export_account_tax"/>
+                                <field name="default_export_account_tax_domain"
+                                       attrs="{'invisible': [('default_export_account_tax', '=', False)]}"/>
+                                <button name="export_taxes"
+                                        type="object"
+                                        string="Export Taxes" />
+                            </group>
                         </group>
                     </page>
                 </xpath>

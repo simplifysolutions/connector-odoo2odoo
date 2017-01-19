@@ -99,7 +99,6 @@ class SaleOrderImporter(OdooImporter):
 #        if record.get('pricelist_id'):
 #            binder = self.binder_for('odooconnector.product.pricelist')
 #            pricelist_id = binder.to_openerp(record['pricelist_id'][0], unwrap=True)
-#            print"pricelist_idpricelist_idpricelist_idpricelist_id",pricelist_id
 #            if not pricelist_id:
 #                self._import_dependency(record['pricelist_id'][0],
 #                                        'odooconnector.product.pricelist')
@@ -123,21 +122,10 @@ class SaleOrderImportMapper(OdooImportMapper):
         source = map_record.source
         child_records = source[from_attr]
         detail_records = []
-        tax_ids={}
         _logger.debug('Loop over order lines...')
         for child_record in child_records:
             adapter = self.unit_for(OdooAdapter, model_name)
             detail_record = adapter.read(child_record)[0]
-            if detail_record['tax_id']:
-                for each_tax in detail_record['tax_id']:
-                    index=detail_record['tax_id'].index(each_tax)
-                    if each_tax not in tax_ids:
-                        adapter = self.unit_for(OdooAdapter)
-                        tax_record = adapter.read(each_tax,
-                                         model_name='account.tax')[0]
-                        tax_val=(tax_record['id'],tax_record['name'])
-                        tax_ids.update({each_tax:tax_val})
-                    detail_record['tax_id'][index]=tax_ids[each_tax]
             detail_records.append(detail_record)
         mapper = self._get_map_child_unit(model_name)
         items = mapper.get_items(
@@ -314,14 +302,13 @@ class SaleOrderLineImportMapper(OdooImportMapper):
     def tax_id(self,record):
         if not record.get('tax_id'):
             return
-        tax_id=[]
+        tax_ids=[]
+        binder = self.binder_for('odooconnector.account.tax')
         for each_tax in record.get('tax_id'):
-            tax=self.env['account.tax'].search(
-            [('name','=',each_tax[1])],
-            limit=1)
-            if tax:
-                tax_id.append(tax.id)
-        return {'tax_id':[(6, 0, tax_id)]}
+            tax_id = binder.to_openerp(each_tax, unwrap=True)
+            if tax_id:
+                tax_ids.append(tax_id)
+        return {'tax_id':[(6, 0, tax_ids)]}
 
 @oc_odoo
 class SaleOrderExporter(OdooExporter):
@@ -362,13 +349,33 @@ class SaleOrderExportMapper(ExportMapper):
         ('order_line', 'order_line', 'odooconnector.sale.order.line')
     ]
 
-
     @mapping
     def partner_id(self, record):
         if record.partner_id:
             binder = self.binder_for('odooconnector.res.partner')
             partner_id = binder.to_backend(record.partner_id.id, wrap=True)
             return {'partner_id': partner_id}
+
+    @mapping
+    def partner_invoice_id(self,record):
+        if record.partner_invoice_id:
+            binder = self.binder_for('odooconnector.res.partner')
+            partner_invoice_id = binder.to_backend(record.partner_invoice_id.id, wrap=True)
+            return {'partner_invoice_id': partner_invoice_id}
+
+    @mapping
+    def partner_shipping_id(self,record):
+        if record.partner_shipping_id:
+            binder = self.binder_for('odooconnector.res.partner')
+            partner_shipping_id = binder.to_backend(record.partner_shipping_id.id, wrap=True)
+            return {'partner_shipping_id': partner_shipping_id}
+
+    @mapping
+    def pricelist_id(self,record):
+        binder = self.binder_for('odooconnector.product.pricelist')
+        pricelist_id = binder.to_backend(record.pricelist_id.id, wrap=True)
+        if pricelist_id:
+            return {'pricelist_id':pricelist_id}
 
 
 @oc_odoo
@@ -389,14 +396,27 @@ class SaleOrderLineExportMapper(ExportMapper):
         if product_id:
             return {'product_id': product_id}
 
-#    @mapping
-#    def product_uom(self, record):
-#        product_uom = self.binder_for('odooconnector.product.uom').to_backend(
-#            record.product_uom.id,
-#            wrap=True
-#        )
-#        if not product_uom:
-#            raise MappingError('The UoM has no binding for this backend')
-#        _logger.debug('Using Product UoM %s for %s and line %s',
-#                      product_uom, record.product_uom, record.id)
-#        return {'product_uom': product_uom}
+    @mapping
+    def product_uom(self, record):
+        product_uom = self.binder_for('odooconnector.product.uom').to_backend(
+            record.product_uom.id,
+            wrap=True
+        )
+        if not product_uom:
+            raise MappingError('The UoM has no binding for this backend')
+        _logger.debug('Using Product UoM %s for %s and line %s',
+                      product_uom, record.product_uom, record.id)
+        return {'product_uom': product_uom}
+
+    @mapping
+    def tax_id(self,record):
+        if not record.tax_id:
+            return
+        tax_ids=[]
+        binder = self.binder_for('odooconnector.account.tax')
+
+        for each_tax in record.tax_id:
+            tax_id = binder.to_backend(each_tax.id,wrap=True)
+            if tax_id:
+                tax_ids.append(tax_id)
+        return {'tax_id':[(6, 0, tax_ids)]}
