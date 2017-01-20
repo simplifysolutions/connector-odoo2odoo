@@ -139,10 +139,13 @@ class ProductUomExportMapper(ExportMapper):
 
         adapter = self.unit_for(OdooAdapter)
         category_id = adapter.search([('name','=',record.category_id.name)],
-            model_name='product.uom.categ')[0]
-        if category_id:
-            return {'category_id': category_id}
-
+            model_name='product.uom.categ')
+        if not category_id:
+            category_id = adapter.create({'name':record.category_id.name},
+                model_name='product.uom.categ')
+        if isinstance(category_id,list):
+            category_id=category_id[0]
+        return {'category_id': category_id}
 
 @oc_odoo
 class ProductUomExporter(OdooExporter):
