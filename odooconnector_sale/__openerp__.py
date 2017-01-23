@@ -19,6 +19,7 @@
         'odooconnector_base',
     ],
     'data': [
+        'security/ir.model.access.csv',
         'views/sale_view.xml',
         'views/account_tax_view.xml',
         'views/odooconnector_backend.xml',

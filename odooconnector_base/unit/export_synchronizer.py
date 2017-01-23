@@ -53,6 +53,104 @@ class OdooExporter(Exporter):
         """
         return
 
+    def _export_dependency(self, relation, binding_model, exporter_class=None,
+                           binding_field='oc_bind_ids',
+                           binding_extra_vals=None):
+        """
+        Export a dependency. The exporter class is a subclass of
+        ``OdooExporter``. If a more precise class need to be defined,
+        it can be passed to the ``exporter_class`` keyword argument.
+
+        .. warning:: a commit is done at the end of the export of each
+                     dependency. The reason for that is that we pushed a record
+                     on the backend and we absolutely have to keep its ID.
+
+                     So you *must* take care not to modify the OpenERP
+                     database during an export, excepted when writing
+                     back the external ID or eventually to store
+                     external data that we have to keep on this side.
+
+                     You should call this method only at the beginning
+                     of the exporter synchronization,
+                     in :meth:`~._export_dependencies`.
+
+        :param relation: record to export if not already exported
+        :type relation: :py:class:`openerp.models.BaseModel`
+        :param binding_model: name of the binding model for the relation
+        :type binding_model: str | unicode
+        :param exporter_cls: :py:class:`openerp.addons.connector\
+                                        .connector.ConnectorUnit`
+                             class or parent class to use for the export.
+                             By default: OdooExporter
+        :type exporter_cls: :py:class:`openerp.addons.connector\
+                                       .connector.MetaConnectorUnit`
+        :param binding_field: name of the one2many field on a normal
+                              record that points to the binding record
+                              (default: oc_bind_ids).
+                              It is used only when the relation is not
+                              a binding but is a normal record.
+        :type binding_field: str | unicode
+        :binding_extra_vals:  In case we want to create a new binding
+                              pass extra values for this binding
+        :type binding_extra_vals: dict
+        """
+        if not relation:
+            return
+        if exporter_class is None:
+            exporter_class = OdooExporter
+        rel_binder = self.binder_for(binding_model)
+        # wrap is typically True if the relation is for instance a
+        # 'product.product' record but the binding model is
+        # 'odooconnector.product.product'
+        wrap = relation._model._name != binding_model
+
+        if wrap and hasattr(relation, binding_field):
+            domain = [('openerp_id', '=', relation.id),
+                      ('backend_id', '=', self.backend_record.id)]
+            binding = self.env[binding_model].search(domain)
+            if binding:
+                assert len(binding._ids) == 1, (
+                    'only 1 binding for a backend is '
+                    'supported in _export_dependency')
+            # we are working with a unwrapped record (e.g.
+            # product.category) and the binding does not exist yet.
+            # Example: I created a product.product and its binding
+            # odooconnector.product.product and we are exporting it, but we need to
+            # create the binding for the product.category on which it
+            # depends.
+            else:
+                bind_values = {'backend_id': self.backend_record.id,
+                               'openerp_id': relation.id}
+                if binding_extra_vals:
+                    bind_values.update(binding_extra_vals)
+                # If 2 jobs create it at the same time, retry
+                # one later. A unique constraint (backend_id,
+                # openerp_id) should exist on the binding model
+                with self._retry_unique_violation():
+                    binding = (self.env[binding_model]
+                               .with_context(connector_no_export=True)
+                               .sudo()
+                               .create(bind_values))
+                    # Eager commit to avoid having 2 jobs
+                    # exporting at the same time. The constraint
+                    # will pop if an other job already created
+                    # the same binding. It will be caught and
+                    # raise a RetryableJobError.
+                    self.session.commit()
+        else:
+            # If oc_bind_ids does not exist we are typically in a
+            # "direct" binding (the binding record is the same record).
+            # If wrap is True, relation is already a binding record.
+            binding = relation
+
+        if not rel_binder.to_backend(binding.openerp_id):
+            exporter = self.unit_for(exporter_class, model=binding_model)
+            exporter.run(binding.id)
+
+    def _export_dependencies(self):
+        """ Export the dependencies for the record"""
+        return
+
     def run(self, binding_id):
         """ Run the export synchronization
 
@@ -66,6 +164,8 @@ class OdooExporter(Exporter):
         if not self._pre_export_check(record):
             _logger.info('Record did not pass pre-export check.')
             return "Pre-Export check was not successfull"
+
+        self._export_dependencies()
 
         mapped_record = self.mapper.map_record(record)
 
