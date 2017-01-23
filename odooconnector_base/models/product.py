@@ -276,13 +276,13 @@ class ProductExporter(OdooExporter):
                 context={'connector_no_export': True}
             )
 
-    def _export_dependencies(self):
-        record = self.model.browse(self.binding_id)
-        product_uom = self.binder_for('odooconnector.product.uom').to_backend(
-        record.openerp_id.uom_id.id,
-        wrap=True
-        )
-        if not product_uom:
-            relation = (record.openerp_id.uom_id)
-            self._export_dependency(relation, 'odooconnector.product.uom',
-                                exporter_class=ProductUomExporter)
+#    def _export_dependencies(self):
+#        record = self.model.browse(self.binding_id)
+#        product_uom = self.binder_for('odooconnector.product.uom').to_backend(
+#        record.openerp_id.uom_id.id,
+#        wrap=True
+#        )
+#        if not product_uom:
+#            relation = (record.openerp_id.uom_id)
+#            self._export_dependency(relation, 'odooconnector.product.uom',
+#                                exporter_class=ProductUomExporter)
