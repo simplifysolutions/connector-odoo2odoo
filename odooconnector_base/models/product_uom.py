@@ -152,3 +152,18 @@ class ProductUomExporter(OdooExporter):
     _model_name = ['odooconnector.product.uom']
     _ic_model_name = 'product.uom'
     _base_mapper = ProductUomExportMapper
+
+    def _get_remote_model(self):
+        return 'product.uom'
+
+    def _pre_export_check(self, record):
+        if not record.external_id:
+            adapter = self.unit_for(OdooAdapter)
+            uom_id = adapter.search([('name','=',record.openerp_id.name)],
+            model_name='product.uom')
+            if uom_id:
+                record.write({'external_id':uom_id[0]})
+        if not self.backend_record.default_export_product_uom:
+            return False
+        domain = self.backend_record.default_export_product_uom_domain
+        return self._pre_export_domain_check(record, domain)
