@@ -13,6 +13,7 @@ from ..unit.mapper import (OdooImportMapper, OdooImportMapChild,
                            OdooExportMapChild)
 from ..unit.backend_adapter import OdooAdapter
 from ..backend import oc_odoo
+from . product_uom import ProductUomExporter
 
 
 _logger = logging.getLogger(__name__)
@@ -63,7 +64,7 @@ class ProductImportMapper(OdooImportMapper):
 #              ('purchase_ok', 'purchase_ok'),
               ('sale_ok', 'sale_ok'),
               ('lst_price', 'list_price'), ('standard_price', 'standard_price'),
-              ('ean13', 'ean13'), ('default_code', 'default_code'),
+              ('ean13', 'barcode'), ('default_code', 'default_code'),
               ('description', 'description')]
 
     children = [
@@ -182,7 +183,7 @@ class ProductExportMapper(ExportMapper):
               ('sale_ok', 'sale_ok'),
               ('lst_price', 'lst_price'),
               ('standard_price', 'standard_price'),
-              ('ean13', 'ean13'),
+              ('ean13', 'barcode'),
               ('default_code', 'default_code'),
               ('description', 'description')
               ]
@@ -195,7 +196,7 @@ class ProductExportMapper(ExportMapper):
     def uom_id(self, record):
         if not record.uom_id.id:
             return
-        uom_id = self._uom_name_search(record.uom_id.name)
+        uom_id = self._uom_search(record.uom_id)
         if uom_id:
             return {'uom_id': uom_id}
 
@@ -203,25 +204,22 @@ class ProductExportMapper(ExportMapper):
     def uom_po_id(self, record):
         if not record.uom_po_id.id:
             return
-        uom_id = self._uom_name_search(record.uom_po_id.name)
+        uom_id = self._uom_search(record.uom_po_id)
         if uom_id:
             return {'uom_po_id': uom_id}
 
-    def _uom_name_search(self, uom_name):
-        """Search for a uom by name
+    def _uom_search(self, uom_id):
+        """Search for a uom
 
         :returns: uom id or None
         """
         # TODO: Unnecessary round trip ...
-        adapter = self.unit_for(OdooAdapter, 'product.uom')
-        filters = [('name', '=', uom_name), ]
-        uom = adapter.search(
-            filters=filters,
-            context={'lang': 'en_US'},  # TODO: In general better lang support!
-            model_name='product.uom')
-
-        if uom and len(uom) == 1:
-            return uom[0]
+        product_uom = self.binder_for('odooconnector.product.uom').to_backend(
+        uom_id.id,
+        wrap=True
+        )
+        if product_uom:
+            return product_uom
 
 
 @oc_odoo
@@ -277,3 +275,14 @@ class ProductExporter(OdooExporter):
                 model_name='odooconnector.product.product',
                 context={'connector_no_export': True}
             )
+
+    def _export_dependencies(self):
+        record = self.model.browse(self.binding_id)
+        product_uom = self.binder_for('odooconnector.product.uom').to_backend(
+        record.openerp_id.uom_id.id,
+        wrap=True
+        )
+        if not product_uom:
+            relation = (record.openerp_id.uom_id)
+            self._export_dependency(relation, 'odooconnector.product.uom',
+                                exporter_class=ProductUomExporter)
