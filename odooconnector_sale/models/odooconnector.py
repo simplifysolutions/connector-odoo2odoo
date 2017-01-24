@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
-# © 2015 Malte Jacobi (maljac @ github)
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# -*- encoding: utf-8 -*-
+# Copyright (C) 2004-Today Simplify Solutions. All Rights Reserved
+
 import datetime
-from openerp import models, fields,api
+from openerp import models, fields, api
 from openerp.tools.safe_eval import safe_eval
 
 from openerp.addons.connector.session import ConnectorSession
@@ -12,7 +12,6 @@ from openerp.addons.odooconnector_base.unit.import_synchronizer import import_ba
 class OdooBackend(models.Model):
 
     _inherit = 'odooconnector.backend'
-
 
     default_export_sale_order = fields.Boolean(
         string='Default SO export backend',
@@ -34,7 +33,7 @@ class OdooBackend(models.Model):
         string='Import Sale Order Domain',
         default='[]'
     )
-    import_so_since=fields.Datetime(
+    import_so_since = fields.Datetime(
         string='Import SO Since'
     )
 
@@ -43,15 +42,15 @@ class OdooBackend(models.Model):
         """ Import sale order from external system """
         session = ConnectorSession(self.env.cr, self.env.uid,
                                    context=self.env.context)
-        backends=self.search([('version','=','1000')])
+        backends = self.search([('version', '=', '1000')])
         for backend in backends:
             filters = backend.default_import_so_domain
-            if filters and isinstance(filters, (str,unicode)):
+            if filters and isinstance(filters, (str, unicode)):
                 filters = safe_eval(filters)
-            domain=[('write_date','>=',backend.import_so_since)]
+            domain = [('write_date', '>=', backend.import_so_since)]
             import_batch(session, 'odooconnector.sale.order', backend.id,
-                         filters+domain)
-            backend.write({'import_so_since':datetime.datetime.now()})
+                         filters + domain)
+            backend.write({'import_so_since': datetime.datetime.now()})
 
         return True
 
