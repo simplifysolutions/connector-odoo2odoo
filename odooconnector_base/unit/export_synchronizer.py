@@ -3,7 +3,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 import time
 import logging
-
+import psycopg2
+from contextlib import contextmanager
 from openerp.tools.safe_eval import safe_eval
 from openerp.addons.connector.queue.job import job
 from openerp.addons.connector.unit.synchronizer import Exporter
@@ -53,6 +54,37 @@ class OdooExporter(Exporter):
         """
         return
 
+    @contextmanager
+    def _retry_unique_violation(self):
+        """ Context manager: catch Unique constraint error and retry the
+        job later.
+
+        When we execute several jobs workers concurrently, it happens
+        that 2 jobs are creating the same record at the same time (binding
+        record created by :meth:`_export_dependency`), resulting in:
+
+            IntegrityError: duplicate key value violates unique
+            constraint "magento_product_product_openerp_uniq"
+            DETAIL:  Key (backend_id, openerp_id)=(1, 4851) already exists.
+
+        In that case, we'll retry the import just later.
+
+        .. warning:: The unique constraint must be created on the
+                     binding record to prevent 2 bindings to be created
+                     for the same Magento record.
+
+        """
+        try:
+            yield
+        except psycopg2.IntegrityError as err:
+            if err.pgcode == psycopg2.errorcodes.UNIQUE_VIOLATION:
+                raise RetryableJobError(
+                    'A database error caused the failure of the job:\n'
+                    '%s\n\n'
+                    'Likely due to 2 concurrent jobs wanting to create '
+                    'the same record. The job will be retried later.' % err)
+            else:
+                raise
     def _export_dependency(self, relation, binding_model, exporter_class=None,
                            binding_field='oc_bind_ids',
                            binding_extra_vals=None):
