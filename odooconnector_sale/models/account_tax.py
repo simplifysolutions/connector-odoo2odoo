@@ -1,10 +1,14 @@
-from openerp import models, fields,api
-from openerp.addons.connector.unit.mapper import (ExportMapper,ImportMapper, mapping)
+# -*- encoding: utf-8 -*-
+# Copyright (C) 2004-Today Simplify Solutions. All Rights Reserved
+
+from openerp import models, fields
+from openerp.addons.connector.unit.mapper import (
+    ExportMapper, ImportMapper, mapping)
+from openerp.addons.odooconnector_base.unit.backend_adapter import OdooAdapter
 from openerp.addons.odooconnector_base.backend import oc_odoo
-from openerp.addons.odooconnector_base.unit.import_synchronizer import (OdooImporter,
-                                        DirectBatchImporter)
-from openerp.addons.odooconnector_base.unit.mapper import (
-    OdooExportMapChild,OdooImportMapChild,OdooImportMapper)
+from openerp.addons.odooconnector_base.unit.import_synchronizer import (
+    OdooImporter, DirectBatchImporter)
+from openerp.addons.odooconnector_base.unit.mapper import OdooImportMapper
 from openerp.addons.odooconnector_base.unit.export_synchronizer import (
     OdooExporter)
 
@@ -32,26 +36,34 @@ class AccountTax(models.Model):
         string='Odoo Binding'
     )
 
+
 @oc_odoo
 class AccountTaxBatchImporter(DirectBatchImporter):
     _model_name = ['odooconnector.account.tax']
+
 
 @oc_odoo
 class AccountTaxImporter(OdooImporter):
     _model_name = ['odooconnector.account.tax']
 
+
 @oc_odoo
 class AccountTaxImporterMapper(OdooImportMapper):
     _model_name = ['odooconnector.account.tax']
 
-    direct=[
-        ('name', 'name'), ('description', 'description'),('type','type'),
-        ('amount','amount'),
+    direct = [
+        ('name', 'name'), ('description', 'description'), ('type', 'type'),
     ]
 
-#@oc_odoo
-#class AccountTaxBatchExporter(DirectBatchExporter):
-#    _model_name = ['odooconnector.account.tax']
+    @mapping
+    def amount(self, record):
+        if not record.get('amount'):
+            return
+        amount = record.get('amount')
+        if record.get('type') == "percent":
+            amount = amount / 100
+        return {'amount': amount}
+
 
 @oc_odoo
 class AccountTaxExporter(OdooExporter):
@@ -59,6 +71,18 @@ class AccountTaxExporter(OdooExporter):
 
     def _get_remote_model(self):
         return 'account.tax'
+
+    def _pre_export_check(self, record):
+        if not record.external_id:
+            adapter = self.unit_for(OdooAdapter)
+            tax_id = adapter.search([('name', '=', record.openerp_id.name)],
+                                    model_name='account.tax')
+            if tax_id:
+                record.write({'external_id': tax_id[0]})
+        if not self.backend_record.default_export_product_uom:
+            return False
+        domain = self.backend_record.default_export_product_uom_domain
+        return self._pre_export_domain_check(record, domain)
 
     def _after_export(self, record_created):
         # create a ic_binding in the backend, indicating that the partner
@@ -82,7 +106,14 @@ class AccountTaxExporter(OdooExporter):
 class AccountTaxExporterMapper(ExportMapper):
     _model_name = ['odooconnector.account.tax']
 
-    direct=[
-        ('name', 'name'), ('description', 'description'),('type','type'),
-        ('amount','amount')
+    direct = [
+        ('name', 'name'), ('description', 'description'), ('type', 'type'),
     ]
+
+    @mapping
+    def amount(self, record):
+        tax = record.openerp_id
+        amount = tax.amount
+        if tax.type == "percent":
+            amount = amount * 100
+        return {'amount': amount}

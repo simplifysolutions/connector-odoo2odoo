@@ -1,22 +1,28 @@
-# -*- coding: utf-8 -*-
-# © 2015 Malte Jacobi (maljac @ github)
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# -*- encoding: utf-8 -*-
+# Copyright (C) 2004-Today Simplify Solutions. All Rights Reserved
+
 import logging
 from openerp.addons.odooconnector_base import events
 
 
 _logger = logging.getLogger(__name__)
 
-@events.on_record_create(model_names=['odooconnector.sale.order','odooconnector.account.tax'
-                               ])
-def export_odooconnector_object(session, model_name, record_id, fields=None):
-    return events.export_odooconnector_object(session, model_name, record_id, fields=fields)
 
-@events.on_record_create(model_names=['sale.order','account.tax'])
+@events.on_record_create(model_names=['odooconnector.sale.order',
+                                      'odooconnector.account.tax'
+                                      ])
+def export_odooconnector_object(session, model_name, record_id, fields=None):
+    return events.export_odooconnector_object(
+        session, model_name, record_id, fields=fields)
+
+
+@events.on_record_create(model_names=['sale.order', 'account.tax'])
 def create_default_binding(session, model_name, record_id, fields=None):
-    return events.create_default_binding(session, model_name, record_id, fields=fields)
-    
-@events.on_record_write(model_names=['sale.order','account.tax'])
+    return events.create_default_binding(
+        session, model_name, record_id, fields=fields)
+
+
+@events.on_record_write(model_names=['sale.order', 'account.tax'])
 def update_sale_order(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return
