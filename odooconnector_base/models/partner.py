@@ -10,6 +10,8 @@ from ..unit.import_synchronizer import (OdooImporter,
                                         DirectBatchImporter)
 from ..unit.export_synchronizer import (OdooExporter,
                                         DirectBatchExporter)
+from ..unit.backend_adapter import OdooAdapter
+
 from ..unit.mapper import OdooImportMapper
 from ..backend import oc_odoo
 
@@ -61,7 +63,8 @@ class PartnerImportMapper(OdooImportMapper):
               ('mobile', 'mobile'), ('fax', 'fax'), ('email', 'email'),
               ('comment', 'comment'), ('supplier', 'supplier'),
               ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
-              ('date', 'date'), ('notify_email', 'notify_email')]
+              ('date', 'date'), ('notify_email', 'notify_email'),
+              ('type','type')]
 
     @mapping
     def country_id(self, record):
@@ -76,11 +79,43 @@ class PartnerImportMapper(OdooImportMapper):
             return {'country_id': country.id}
 
     @mapping
+    def state_id(self, record):
+
+        if not record.get('state_id'):
+            return
+        state = self.env['res.country.state'].search(
+            [('name', '=', record['state_id'][1])],
+            limit=1
+        )
+        if state:
+            return {'state_id': state.id}
+
+    @mapping
+    def property_account_position(self, record):
+
+        if not record.get('property_account_position'):
+            return
+        fiscal_position = self.env['account.fiscal.position'].search(
+            [('name', '=', record['property_account_position'][1])],
+            limit=1
+        )
+        if fiscal_position:
+            return {'property_account_position': fiscal_position.id}
+
+    @mapping
     def property_pricelist_id(self,record):
         binder = self.binder_for('odooconnector.product.pricelist')
         pricelist_id = binder.to_openerp(record['property_pricelist_id'][0], wrap=True)
         if pricelist_id:
             return {'property_product_pricelist': pricelist_id}
+
+    @mapping
+    def parent_id(self,record):
+        if record.get('parent_id'):
+            binder = self.binder_for('odooconnector.res.partner')
+            parent_id = binder.to_openerp(record['parent_id'][0], wrap=True)
+            if parent_id:
+                return {'parent_id': parent_id}
 
 
 @oc_odoo
@@ -125,7 +160,8 @@ class PartnerExportMapper(ExportMapper):
               ('mobile', 'mobile'), ('fax', 'fax'), ('email', 'email'),
               ('comment', 'comment'), ('supplier', 'supplier'),
               ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
-              ('date', 'date'), ('notify_email', 'notify_email')]
+              ('date', 'date'), ('notify_email', 'notify_email'),
+              ('type','type')]
 
     @mapping
     def property_pricelist_id(self,record):
@@ -133,6 +169,55 @@ class PartnerExportMapper(ExportMapper):
         pricelist_id = binder.to_backend(record.openerp_id.property_product_pricelist.id, wrap=True)
         if pricelist_id:
             return {'property_product_pricelist': pricelist_id}
+
+    @mapping
+    def parent_id(self,record):
+        if record.openerp_id.parent_id:
+            binder = self.binder_for('odooconnector.res.partner')
+            parent_id = binder.to_backend(record.openerp_id.parent_id.id, wrap=True)
+            print"parent_idparent_idparent_id",parent_id
+            if parent_id:
+                return {'parent_id': parent_id}
+
+    @mapping
+    def country_id(self,record):
+        if record.openerp_id.country_id:
+            adapter = self.unit_for(OdooAdapter)
+            country_id = adapter.search([
+                ('name', '=', record.openerp_id.country_id.name)],
+                                    model_name='res.country')
+            if country_id:
+                return {'country_id': country_id[0]}
+
+    @mapping
+    def country_id(self,record):
+        if record.openerp_id.country_id:
+            adapter = self.unit_for(OdooAdapter)
+            country_id = adapter.search([
+                ('name', '=', record.openerp_id.country_id.name)],
+                                    model_name='res.country')
+            if country_id:
+                return {'country_id': country_id[0]}
+
+    @mapping
+    def state_id(self,record):
+        if record.openerp_id.state_id:
+            adapter = self.unit_for(OdooAdapter)
+            state_id = adapter.search([
+                ('name', '=', record.openerp_id.state_id.name)],
+                                    model_name='res.country.state')
+            if state_id:
+                return {'state_id': state_id[0]}
+
+    @mapping
+    def property_account_position(self,record):
+        if record.openerp_id.property_account_position:
+            adapter = self.unit_for(OdooAdapter)
+            fiscal_id = adapter.search([
+                ('name', '=', record.openerp_id.property_account_position.name)],
+                                    model_name='account.fiscal.position')
+            if fiscal_id:
+                return {'property_account_position': fiscal_id[0]}
 
 @oc_odoo
 class PartnerBatchExporter(DirectBatchExporter):
