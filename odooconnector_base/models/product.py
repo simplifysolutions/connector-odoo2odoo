@@ -178,8 +178,6 @@ class ProductExportMapper(ExportMapper):
 
     direct = [('name', 'name'),
               # ('name_template', 'name_template'),
-              ('type', 'type'),
-#              ('purchase_ok', 'purchase_ok'),
               ('sale_ok', 'sale_ok'),
               ('lst_price', 'lst_price'),
               ('standard_price', 'standard_price'),
@@ -191,6 +189,10 @@ class ProductExportMapper(ExportMapper):
     children = [
         ('seller_ids', 'seller_ids', 'odooconnector.product.supplierinfo')
     ]
+
+    @mapping
+    def type(self,record):
+        return {'type':'service'}
 
     @mapping
     def uom_id(self, record):
