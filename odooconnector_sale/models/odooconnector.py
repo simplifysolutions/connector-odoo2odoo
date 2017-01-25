@@ -61,6 +61,7 @@ class OdooBackend(models.Model):
     @api.multi
     def export_so(self):
         """ Export sale orders to external system """
+        self._export_records('sale.order.line')
         self._export_records('sale.order')
         return True
 
