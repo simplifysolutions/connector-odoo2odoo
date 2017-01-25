@@ -93,10 +93,10 @@ class PartnerImportMapper(OdooImportMapper):
     @mapping
     def property_account_position(self, record):
 
-        if not record.get('property_account_position'):
+        if not record.get('property_account_position_id'):
             return
         fiscal_position = self.env['account.fiscal.position'].search(
-            [('name', '=', record['property_account_position'][1])],
+            [('name', '=', record['property_account_position_id'][1])],
             limit=1
         )
         if fiscal_position:
@@ -237,7 +237,7 @@ class PartnerExportMapper(ExportMapper):
                 ('name', '=', record.openerp_id.property_account_position.name)],
                                     model_name='account.fiscal.position')
             if fiscal_id:
-                return {'property_account_position': fiscal_id[0]}
+                return {'property_account_position_id': fiscal_id[0]}
 
 @oc_odoo
 class PartnerBatchExporter(DirectBatchExporter):
