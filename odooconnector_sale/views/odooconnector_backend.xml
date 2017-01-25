@@ -28,6 +28,9 @@
                                 <button name="export_so"
                                         type="object"
                                         string="Export Sale order" />
+                                 <button name="export_so_line"
+                                        type="object"
+                                        string="Export Sale order Line" />
                             </group>
                             <group>
                                 <field name="default_export_account_tax"/>
