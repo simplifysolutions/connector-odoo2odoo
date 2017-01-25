@@ -180,14 +180,34 @@ class PartnerExportMapper(ExportMapper):
                 return {'parent_id': parent_id}
 
     @mapping
-    def country_id(self,record):
-        if record.openerp_id.country_id:
+    def payment_term_id(self,record):
+        if record.openerp_id.property_payment_term:
             adapter = self.unit_for(OdooAdapter)
-            country_id = adapter.search([
-                ('name', '=', record.openerp_id.country_id.name)],
-                                    model_name='res.country')
-            if country_id:
-                return {'country_id': country_id[0]}
+            payment_term=record.openerp_id.property_payment_term
+            payment_term_id = adapter.search([
+                ('name', '=', payment_term.name)],
+                                    model_name='account.payment.term')
+            if not payment_term_id:
+                payment_vals={'name':payment_term.name,
+                'note':payment_term.note
+                }
+                payment_term_id = adapter.create(payment_vals,
+                model_name='account.payment.term')
+                for each_line in payment_term.line_ids:
+                    if each_line.value=='porcent':
+                        value_amount=each_line.value_amount*100
+                    else:
+                        value_amount=each_line.value_amount
+                    line_vals={'value':each_line.value,
+                    'days':each_line.days,
+                    'value_amount':value_amount,
+                    'payment_id':payment_term_id,
+                    }
+                    adapter.create(line_vals,
+                        model_name='account.payment.term.line')
+            if isinstance(payment_term_id,list):
+                payment_term_id=payment_term_id[0]
+            return {'property_payment_term_id': payment_term_id}
 
     @mapping
     def country_id(self,record):

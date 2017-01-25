@@ -64,6 +64,14 @@ class AccountTaxImporterMapper(OdooImportMapper):
             amount = amount / 100
         return {'amount': amount}
 
+    @mapping
+    def parent_id(self, record):
+        if record.get('parent_id'):
+            binder = self.binder_for('odooconnector.account.tax')
+            parent_id = binder.to_openerp(record['parent_id'][0], wrap=True)
+            if parent_id:
+                return {'parent_id': parent_id}
+
 
 @oc_odoo
 class AccountTaxExporter(OdooExporter):
@@ -107,9 +115,18 @@ class AccountTaxExporterMapper(ExportMapper):
     _model_name = ['odooconnector.account.tax']
 
     direct = [
-        ('name', 'name'), ('description', 'description'), ('type', 'type'),
+        ('name', 'name'), ('description', 'description'), 
+#        ('type', 'type'),
+        #        ('child_depend',)
     ]
 
+    @mapping
+    def type(self,record):
+        if record.openerp_id.child_depend:
+            type='group'
+        else:
+            type=record.openerp_id.type
+        return {'type':type}
     @mapping
     def amount(self, record):
         tax = record.openerp_id
@@ -117,3 +134,13 @@ class AccountTaxExporterMapper(ExportMapper):
         if tax.type == "percent":
             amount = amount * 100
         return {'amount': amount}
+
+    @mapping
+    def parent_id(self, record):
+        if record.openerp_id.parent_id:
+            binder = self.binder_for('odooconnector.account.tax')
+            parent_id = binder.to_backend(
+                record.openerp_id.parent_id.id, wrap=True)
+            print"parent_idparent_idparent_id", parent_id
+            if parent_id:
+                return {'parent_id': parent_id}
