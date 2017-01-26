@@ -30,7 +30,6 @@ class OdooExportMapSaleChild(ExportMapChild):
 class OdooImportMapSaleChild(ImportMapChild):
 
     def format_items(self, item_values):
-        print"item_valuesitem_valuesitem_values", item_values
         item_list = []
         if item_values:
             for each in item_values:
@@ -38,7 +37,6 @@ class OdooImportMapSaleChild(ImportMapChild):
                     item_list.append((1, each.get('line_id'), each))
                 else:
                     item_list.append((0, 0, each))
-        else:
-            item_list = [(5, 0)]
-        print"item_listitem_list", item_list
+#        else:
+#            item_list = [(5, 0)]
         return item_list
