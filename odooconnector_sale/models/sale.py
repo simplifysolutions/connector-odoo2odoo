@@ -403,6 +403,25 @@ class SaleOrderExporter(OdooExporter):
     def _get_remote_model(self):
         return 'sale.order'
 
+    def _pre_export_check(self, record):
+        binder = self.binder_for('odooconnector.res.partner')
+        
+        if record.openerp_id.partner_id:
+            partner_id = binder.to_backend(record.openerp_id.partner_id.id, wrap=True)
+            if not partner_id:
+                return False
+        if record.openerp_id.partner_invoice_id:
+            partner_invoice_id = binder.to_backend(record.openerp_id.partner_invoice_id.id, wrap=True)
+            if not partner_invoice_id:
+                return False
+        if record.openerp_id.partner_shipping_id:
+            partner_shipping_id = binder.to_backend(record.openerp_id.partner_shipping_id.id, wrap=True)
+            if not partner_shipping_id:
+                return False
+        if not self.backend_record.default_export_product_uom:
+            return False
+        domain = self.backend_record.default_export_product_uom_domain
+        return self._pre_export_domain_check(record, domain)
     def _after_export(self, record_created):
         # create a ic_binding in the backend, indicating that the partner
         # was exported
@@ -427,6 +446,21 @@ class SaleOrderLineExporter(OdooExporter):
 
     def _get_remote_model(self):
         return 'sale.order.line'
+    
+    def _pre_export_check(self, record):
+        binder = self.binder_for('odooconnector.product.product')
+        if record.openerp_id.product_id:
+            product_id = binder.to_backend(record.openerp_id.product_id.id, wrap=True)
+            if not product_id:
+                return False
+        if record.openerp_id.order_id:
+            order_id = self.binder_for('odooconnector.sale.order').to_backend(record.openerp_id.order_id.id, wrap=True)
+            if not order_id:
+                return False
+        if not self.backend_record.default_export_product_uom:
+            return False
+        domain = self.backend_record.default_export_product_uom_domain
+        return self._pre_export_domain_check(record, domain)
 
     def _after_export(self, record_created):
         # create a ic_binding in the backend, indicating that the partner
