@@ -5,7 +5,7 @@ import logging
 
 from openerp import models, fields
 from openerp.addons.connector.unit.mapper import (mapping, ExportMapper)
-
+from ..unit.backend_adapter import OdooAdapter
 from ..unit.import_synchronizer import (OdooImporter,
                                         DirectBatchImporter)
 from ..unit.export_synchronizer import (OdooExporter,
@@ -50,6 +50,16 @@ class CrmLeadBatchImporter(DirectBatchImporter):
 class CrmLeadImporter(OdooImporter):
     _model_name = ['odooconnector.crm.lead']
 
+    def _import_dependencies(self):
+        record = self.external_record
+
+        if record.get('partner_id'):
+            binder = self.binder_for('odooconnector.res.partner')
+            partner_id = binder.to_openerp(
+                record['partner_id'][0], unwrap=True)
+            if not partner_id:
+                self._import_dependency(record['partner_id'][0],
+                                        'odooconnector.res.partner')
 
 @oc_odoo
 class CrmLeadImportMapper(OdooImportMapper):
@@ -67,13 +77,32 @@ class CrmLeadImportMapper(OdooImportMapper):
               ('priority', 'priority'),
               ]
 
-    # @mapping
-    # def partner_id(self, record):
-    #     if not record.partner_id:
-    #         return
-    #     partner = self.env['crm.lead'].browse(record['partner_id'][0])
-    #     if record.partner_id.oc_bind_ids:
-    #         return {'partner_id': record.partner_id.oc_bind_ids[0].external_id}
+    @mapping
+    def priority(self, record):
+        if not record.get('priority'):
+            return
+        priority = (int(record.get('priority'))==3) and str(int(record.get('priority'))+1) or record.get('priority')
+        return {'priority': priority}
+
+    @mapping
+    def stage_id(self,record):
+        if not record.get('stage_id'):
+            return
+        crm_stage=self.env['crm.case.stage']
+        stage=crm_stage.search([('name','=',record.get('stage_id')[1])])
+        if not stage:
+            adapter = self.unit_for(OdooAdapter)
+            stage_data=adapter.read(record.get('stage_id')[0],model_name='crm.stage')[0]
+            stage=crm_stage.create(stage_data)
+        return {'stage_id':stage.id}
+
+    @mapping
+    def partner_id(self, record):
+        if not record.get('partner_id'):
+             return
+        binder = self.binder_for('odooconnector.res.partner')
+        partner_id = binder.to_openerp(record['partner_id'][0], unwrap=True)
+        return {'partner_id': partner_id}
 
 @oc_odoo
 class CrmLeadExporter(OdooExporter):
@@ -129,14 +158,30 @@ class CrmLeadExportMapper(ExportMapper):
         priority = (int(record.priority)==4) and str(int(record.priority)-1) or record.priority
         return {'priority': priority}
 
+    @mapping
+    def stage_id(self,record):
+        stage=record.stage_id
+        adapter = self.unit_for(OdooAdapter)
+        stage_id = adapter.search([('name','=',stage.name)],
+            model_name='crm.stage')
+        if not stage_id:
+            vals={'name':stage.name,
+            'on_change':stage.on_change,
+            'fold':stage.fold,
+            'probability':stage.probability,
+            }
+            stage_id = adapter.create(vals,model_name='crm.stage')
+        if isinstance(stage_id,list):
+            stage_id=stage_id[0]
+        return {'stage_id': stage_id}
 
     @mapping
     def partner_id(self, record):
         if not record.partner_id:
             return
-        partner = self.env['crm.lead'].browse(record['partner_id'][0])
-        if record.partner_id.oc_bind_ids:
-            return {'partner_id': record.partner_id.oc_bind_ids[0].external_id}
+        binder = self.binder_for('odooconnector.res.partner')
+        partner_id = binder.to_backend(record.partner_id.id, wrap=True)
+        return {'partner_id': partner_id}
 
     # TODO: After users synch, add salesperson mapping
 
