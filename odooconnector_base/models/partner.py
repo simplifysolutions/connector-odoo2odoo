@@ -104,6 +104,8 @@ class PartnerImportMapper(OdooImportMapper):
 
     @mapping
     def property_pricelist_id(self,record):
+        if not record.get('property_pricelist_id'):
+            return
         binder = self.binder_for('odooconnector.product.pricelist')
         pricelist_id = binder.to_openerp(record['property_pricelist_id'][0], wrap=True)
         if pricelist_id:
