@@ -126,6 +126,15 @@ class OdooBackend(models.Model):
         default='[]'
     )
 
+    default_export_res_users = fields.Boolean(
+        string='Export Users'
+    )
+
+    default_export_res_users_domain = fields.Char(
+        string='Export Users Domain',
+        default='[]'
+    )
+
     default_export_product = fields.Boolean(
         string='Export Products'
     )
@@ -225,6 +234,12 @@ class OdooBackend(models.Model):
         return True
 
     @api.multi
+    def export_res_users(self):
+        """ Export users to external system """
+        self._export_records('res.users')
+        return True
+
+    @api.multi
     def export_products(self):
         """ Export products to external system """
         self._export_records('product.product')
@@ -248,11 +263,10 @@ class OdooBackend(models.Model):
         self._export_records('product.pricelist')
         return True
 
-
     @api.model
     def _export_records(self, model):
         session = ConnectorSession(self.env.cr, self.env.uid,
                                    context=self.env.context)
-        records = self.env[model].search([('oc_bind_ids','=',False)])
+        records = self.env[model].search([('oc_bind_ids', '=', False)])
         for record in records:
             create_default_binding(session, model, record.id)

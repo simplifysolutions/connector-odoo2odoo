@@ -36,7 +36,7 @@ class OdooExporter(Exporter):
         """
         # TODO(MJ): Replace this eval expression!
         results = self.env[self._get_remote_model()].search(
-                safe_eval(domain))
+            safe_eval(domain))
         if record.openerp_id.id in results.ids:
             return True
         return False
@@ -85,6 +85,7 @@ class OdooExporter(Exporter):
                     'the same record. The job will be retried later.' % err)
             else:
                 raise
+
     def _export_dependency(self, relation, binding_model, exporter_class=None,
                            binding_field='oc_bind_ids',
                            binding_extra_vals=None):
@@ -147,9 +148,9 @@ class OdooExporter(Exporter):
             # we are working with a unwrapped record (e.g.
             # product.category) and the binding does not exist yet.
             # Example: I created a product.product and its binding
-            # odooconnector.product.product and we are exporting it, but we need to
-            # create the binding for the product.category on which it
-            # depends.
+            # odooconnector.product.product and we are exporting it,
+            # but we need to create the binding for the product.category
+            # on which it depends.
             else:
                 bind_values = {'backend_id': self.backend_record.id,
                                'openerp_id': relation.id}
@@ -174,7 +175,6 @@ class OdooExporter(Exporter):
             # "direct" binding (the binding record is the same record).
             # If wrap is True, relation is already a binding record.
             binding = relation
-
         if not rel_binder.to_backend(binding.openerp_id):
             exporter = self.unit_for(exporter_class, model=binding_model)
             exporter.run(binding.id)
@@ -307,6 +307,7 @@ class TranslationExporter(Exporter):
                 external_id, data, context={'lang': language}
             )
 
+
 class BatchExporter(Exporter):
     """ Search for a list of items to export. Export them directly or delay
     the export of each item (see DirectBatchExporter, DelayedBatchExporter)
@@ -315,7 +316,7 @@ class BatchExporter(Exporter):
     def run(self, filters=None):
         """ Run the synchronization """
         _logger.debug("BatchExporter started")
-        #FIXME: Clunky and ugh with the eval
+        # FIXME: Clunky and ugh with the eval
         record_ids = self.env[self._get_remote_model()].search(
             safe_eval(filters))
 
@@ -329,6 +330,7 @@ class BatchExporter(Exporter):
         """
         raise NotImplementedError
 
+
 class DirectBatchExporter(BatchExporter):
     """ Export the records directly. Do not delay export to jobs. """
 
@@ -339,6 +341,7 @@ class DirectBatchExporter(BatchExporter):
         export_record(self.session, self.model._name, self.backend_record.id,
                       record_id, api=api)
 
+
 @oc_odoo
 class AddCheckpoint(ConnectorUnit):
     """ Add a connector.checkpoint on the underlying model
@@ -346,8 +349,8 @@ class AddCheckpoint(ConnectorUnit):
 
     _model_name = ['odooconnector.product.pricelist.item',
                    'odooconnector.product.pricelist',
-                ]
-    
+                   ]
+
     def run(self, openerp_binding_id):
         binding = self.model.browse(openerp_binding_id)
         record = binding.openerp_id
@@ -365,12 +368,13 @@ def export_batch(session, model_name, backend_id, filters=None):
     exporter = env.get_connector_unit(BatchExporter)
     exporter.run(filters=filters)
 
+
 @job(default_channel='root.odooconnector')
 def export_record(session, model_name, backend_id, binding_id,
                   fields=None, api=None):
     _logger.debug('Export record for "%s"', model_name)
     env = get_environment(session, model_name, backend_id, api=api)
 
-    #TODO: LANGUAGE STUFF
+    # TODO: LANGUAGE STUFF
     exporter = env.get_connector_unit(OdooExporter)
     exporter.run(binding_id)

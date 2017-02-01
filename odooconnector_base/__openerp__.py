@@ -26,6 +26,7 @@
         'data/odooconnector_base.xml',
         'views/odooconnector_backend.xml',
         'views/partner.xml',
+        'views/res_users_view.xml',
         'views/product.xml',
         'views/crm_lead.xml',
         'views/product_uom.xml',

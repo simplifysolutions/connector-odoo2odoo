@@ -10,22 +10,25 @@ _logger = logging.getLogger(__name__)
 
 @events.on_record_create(model_names=['odooconnector.sale.order',
                                       'odooconnector.sale.order.line',
-                                      'odooconnector.account.tax'
+                                      'odooconnector.account.tax',
+                                      'odooconnector.crm.case.section',
                                       ])
 def export_odooconnector_object(session, model_name, record_id, fields=None):
     return events.export_odooconnector_object(
         session, model_name, record_id, fields=fields)
 
 
-@events.on_record_create(
-    model_names=['sale.order', 'sale.order.line', 'account.tax'])
+@events.on_record_create(model_names=['sale.order',
+                                      'sale.order.line',
+                                      'account.tax',
+                                      'crm.case.section'])
 def create_default_binding(session, model_name, record_id, fields=None):
     return events.create_default_binding(
         session, model_name, record_id, fields=fields)
 
 
 @events.on_record_write(
-    model_names=['sale.order', 'sale.order.line', 'account.tax'])
+    model_names=['sale.order', 'account.tax', 'crm.case.section'])
 def update_sale_order(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return

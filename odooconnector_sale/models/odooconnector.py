@@ -13,6 +13,14 @@ class OdooBackend(models.Model):
 
     _inherit = 'odooconnector.backend'
 
+    default_export_sales_team = fields.Boolean(
+        string='Default Sales Team export backend',
+        help='Use this backend as default for the SO process.'
+    )
+    default_export_sales_team_domain = fields.Char(
+        string='Export Sales Team Domain',
+        default='[]'
+    )
     default_export_sale_order = fields.Boolean(
         string='Default SO export backend',
         help='Use this backend as default for the SO process.'
@@ -57,6 +65,12 @@ class OdooBackend(models.Model):
     @api.multi
     def import_so(self):
         return self.import_sale_order()
+
+    @api.multi
+    def export_sales_team(self):
+        """ Export sale orders to external system """
+        self._export_records('crm.case.section')
+        return True
 
     @api.multi
     def export_so(self):

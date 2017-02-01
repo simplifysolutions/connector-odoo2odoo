@@ -22,6 +22,14 @@
                         </group>
                         <group string="Export">
                             <group>
+                                <field name="default_export_sales_team"/>
+                                <field name="default_export_sales_team_domain"
+                                       attrs="{'invisible': [('default_export_sales_team', '=', False)]}"/>
+                                <button name="export_sales_team"
+                                        type="object"
+                                        string="Export Sales Team" />
+                            </group>
+                            <group>
                                 <field name="default_export_sale_order"/>
                                 <field name="default_export_so_domain"
                                        attrs="{'invisible': [('default_export_sale_order', '=', False)]}"/>

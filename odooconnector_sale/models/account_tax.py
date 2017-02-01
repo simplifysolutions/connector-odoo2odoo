@@ -115,18 +115,19 @@ class AccountTaxExporterMapper(ExportMapper):
     _model_name = ['odooconnector.account.tax']
 
     direct = [
-        ('name', 'name'), ('description', 'description'), 
-#        ('type', 'type'),
+        ('name', 'name'), ('description', 'description'),
+        #        ('type', 'type'),
         #        ('child_depend',)
     ]
 
     @mapping
-    def type(self,record):
+    def type(self, record):
         if record.openerp_id.child_depend:
-            type='group'
+            type = 'group'
         else:
-            type=record.openerp_id.type
-        return {'type':type}
+            type = record.openerp_id.type
+        return {'type': type}
+
     @mapping
     def amount(self, record):
         tax = record.openerp_id

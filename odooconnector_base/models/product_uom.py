@@ -3,7 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 import logging
 from openerp import models, fields
-from openerp.addons.connector.unit.mapper import (mapping,ExportMapper)
+from openerp.addons.connector.unit.mapper import (mapping, ExportMapper)
 from ..unit.backend_adapter import OdooAdapter
 
 from ..unit.import_synchronizer import (OdooImporter,
@@ -113,6 +113,7 @@ class ProductUomImporter(OdooImporter):
             mapper_class=ProductUomSimpleImportMapper
         )
 
+
 @oc_odoo
 class ProductUomBatchExporter(DirectBatchExporter):
     _model_name = ['odooconnector.product.uom']
@@ -123,6 +124,7 @@ class ProductUomBatchExporter(DirectBatchExporter):
 class ProductUomTranslationExporter(TranslationExporter):
     _model_name = ['odooconnector.product.uom']
     _ic_model_name = 'product.uom'
+
 
 @oc_odoo
 class ProductUomExportMapper(ExportMapper):
@@ -138,14 +140,15 @@ class ProductUomExportMapper(ExportMapper):
             return
 
         adapter = self.unit_for(OdooAdapter)
-        category_id = adapter.search([('name','=',record.category_id.name)],
-            model_name='product.uom.categ')
+        category_id = adapter.search([('name', '=', record.category_id.name)],
+                                     model_name='product.uom.categ')
         if not category_id:
-            category_id = adapter.create({'name':record.category_id.name},
-                model_name='product.uom.categ')
-        if isinstance(category_id,list):
-            category_id=category_id[0]
+            category_id = adapter.create({'name': record.category_id.name},
+                                         model_name='product.uom.categ')
+        if isinstance(category_id, list):
+            category_id = category_id[0]
         return {'category_id': category_id}
+
 
 @oc_odoo
 class ProductUomExporter(OdooExporter):
@@ -159,10 +162,10 @@ class ProductUomExporter(OdooExporter):
     def _pre_export_check(self, record):
         if not record.external_id:
             adapter = self.unit_for(OdooAdapter)
-            uom_id = adapter.search([('name','=',record.openerp_id.name)],
-            model_name='product.uom')
+            uom_id = adapter.search([('name', '=', record.openerp_id.name)],
+                                    model_name='product.uom')
             if uom_id:
-                record.write({'external_id':uom_id[0]})
+                record.write({'external_id': uom_id[0]})
         if not self.backend_record.default_export_product_uom:
             return False
         domain = self.backend_record.default_export_product_uom_domain

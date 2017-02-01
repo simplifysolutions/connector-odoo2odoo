@@ -185,18 +185,20 @@ class ProductPricelistExportMapper(ExportMapper):
               ]
 
     children = [
-        ('version_item_ids', 'item_ids', 'odooconnector.product.pricelist.item')
+        ('version_item_ids', 'item_ids',
+         'odooconnector.product.pricelist.item')
     ]
 
     @mapping
-    def currency_id(self,record):
+    def currency_id(self, record):
         if not record.openerp_id.currency_id:
             return
         adapter = self.unit_for(OdooAdapter)
-        currency_id = adapter.search([('name','=',record.openerp_id.currency_id.name)],
-                                         model_name='res.currency')
+        currency_id = adapter.search([
+            ('name', '=', record.openerp_id.currency_id.name)],
+            model_name='res.currency')
         if currency_id:
-            return {'currency_id':currency_id[0]}
+            return {'currency_id': currency_id[0]}
 
 
 @oc_odoo
@@ -230,7 +232,8 @@ class ProductPricelistExporter(OdooExporter):
         if not self.backend_record.default_export_product_pricelist:
             return False
         for each_item in record.version_item_ids:
-            if each_item.base==1 and round(each_item.price_discount,2)!=-1.00:
+            if each_item.base == 1 and round(
+                    each_item.price_discount, 2) != -1.00:
                 checkpoint = self.unit_for(AddCheckpoint)
                 checkpoint.run(record.id)
         domain = self.backend_record.default_export_product_pricelist_domain

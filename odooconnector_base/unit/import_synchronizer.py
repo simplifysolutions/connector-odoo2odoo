@@ -179,7 +179,6 @@ class OdooImporter(Importer):
         self._before_import()
         self._import_dependencies()
 
-
         # Map the data
         mapped_record = self._map_data()
 
