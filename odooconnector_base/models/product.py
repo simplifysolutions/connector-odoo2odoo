@@ -61,9 +61,10 @@ class ProductImportMapper(OdooImportMapper):
     direct = [('name', 'name'),
               # ('name_template', 'name_template'),
               ('type', 'type'),
-#              ('purchase_ok', 'purchase_ok'),
+              # ('purchase_ok', 'purchase_ok'),
               ('sale_ok', 'sale_ok'),
-              ('lst_price', 'list_price'), ('standard_price', 'standard_price'),
+              ('lst_price', 'list_price'),
+              ('standard_price', 'standard_price'),
               ('ean13', 'barcode'), ('default_code', 'default_code'),
               ('description', 'description')]
 
@@ -191,8 +192,8 @@ class ProductExportMapper(ExportMapper):
     ]
 
     @mapping
-    def type(self,record):
-        return {'type':'service'}
+    def type(self, record):
+        return {'type': 'service'}
 
     @mapping
     def uom_id(self, record):
@@ -217,8 +218,8 @@ class ProductExportMapper(ExportMapper):
         """
         # TODO: Unnecessary round trip ...
         product_uom = self.binder_for('odooconnector.product.uom').to_backend(
-        uom_id.id,
-        wrap=True
+            uom_id.id,
+            wrap=True
         )
         if product_uom:
             return product_uom

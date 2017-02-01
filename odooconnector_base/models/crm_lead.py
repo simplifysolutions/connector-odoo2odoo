@@ -61,6 +61,7 @@ class CrmLeadImporter(OdooImporter):
                 self._import_dependency(record['partner_id'][0],
                                         'odooconnector.res.partner')
 
+
 @oc_odoo
 class CrmLeadImportMapper(OdooImportMapper):
     _model_name = 'odooconnector.crm.lead'
@@ -69,9 +70,12 @@ class CrmLeadImportMapper(OdooImportMapper):
               ('contact_name', 'contact_name'), ('street', 'street'),
               ('street2', 'street2'), ('city', 'city'),
               ('zip', 'zip'), ('phone', 'phone'),
-              ('mobile', 'mobile'), ('fax', 'fax'), ('email_from', 'email_from'),
-              ('probability', 'probability'), ('planned_revenue', 'planned_revenue'),
-              ('date_deadline', 'date_deadline'), ('date_action', 'date_action'),
+              ('mobile', 'mobile'), ('fax', 'fax'),
+              ('email_from', 'email_from'),
+              ('probability', 'probability'),
+              ('planned_revenue', 'planned_revenue'),
+              ('date_deadline', 'date_deadline'),
+              ('date_action', 'date_action'),
               ('title_action', 'title_action'), ('opt_out', 'opt_out'),
               ('referred', 'referred'), ('description', 'description'),
               ('priority', 'priority'),
@@ -81,28 +85,32 @@ class CrmLeadImportMapper(OdooImportMapper):
     def priority(self, record):
         if not record.get('priority'):
             return
-        priority = (int(record.get('priority'))==3) and str(int(record.get('priority'))+1) or record.get('priority')
+        priority = (int(record.get('priority')) == 3) and str(
+            int(record.get('priority')) + 1) or record.get('priority')
         return {'priority': priority}
 
     @mapping
-    def stage_id(self,record):
+    def stage_id(self, record):
         if not record.get('stage_id'):
             return
-        crm_stage=self.env['crm.case.stage']
-        stage=crm_stage.search([('name','=',record.get('stage_id')[1])])
+        crm_stage = self.env['crm.case.stage']
+        stage = crm_stage.search([('name', '=', record.get('stage_id')[1])])
         if not stage:
             adapter = self.unit_for(OdooAdapter)
-            stage_data=adapter.read(record.get('stage_id')[0],model_name='crm.stage')[0]
-            stage=crm_stage.create(stage_data)
-        return {'stage_id':stage.id}
+            stage_data = adapter.read(
+                record.get('stage_id')[0],
+                model_name='crm.stage')[0]
+            stage = crm_stage.create(stage_data)
+        return {'stage_id': stage.id}
 
     @mapping
     def partner_id(self, record):
         if not record.get('partner_id'):
-             return
+            return
         binder = self.binder_for('odooconnector.res.partner')
         partner_id = binder.to_openerp(record['partner_id'][0], unwrap=True)
         return {'partner_id': partner_id}
+
 
 @oc_odoo
 class CrmLeadExporter(OdooExporter):
@@ -144,9 +152,12 @@ class CrmLeadExportMapper(ExportMapper):
               ('contact_name', 'contact_name'), ('street', 'street'),
               ('street2', 'street2'), ('city', 'city'),
               ('zip', 'zip'), ('phone', 'phone'),
-              ('mobile', 'mobile'), ('fax', 'fax'), ('email_from', 'email_from'),
-              ('probability', 'probability'), ('planned_revenue', 'planned_revenue'),
-              ('date_deadline', 'date_deadline'), ('date_action', 'date_action'),
+              ('mobile', 'mobile'), ('fax', 'fax'),
+              ('email_from', 'email_from'),
+              ('probability', 'probability'),
+              ('planned_revenue', 'planned_revenue'),
+              ('date_deadline', 'date_deadline'),
+              ('date_action', 'date_action'),
               ('title_action', 'title_action'), ('opt_out', 'opt_out'),
               ('referred', 'referred'), ('description', 'description'),
               ]
@@ -155,24 +166,25 @@ class CrmLeadExportMapper(ExportMapper):
     def priority(self, record):
         if not record.priority:
             return
-        priority = (int(record.priority)==4) and str(int(record.priority)-1) or record.priority
+        priority = (int(record.priority) == 4) and str(
+            int(record.priority) - 1) or record.priority
         return {'priority': priority}
 
     @mapping
-    def stage_id(self,record):
-        stage=record.stage_id
+    def stage_id(self, record):
+        stage = record.stage_id
         adapter = self.unit_for(OdooAdapter)
-        stage_id = adapter.search([('name','=',stage.name)],
-            model_name='crm.stage')
+        stage_id = adapter.search([('name', '=', stage.name)],
+                                  model_name='crm.stage')
         if not stage_id:
-            vals={'name':stage.name,
-            'on_change':stage.on_change,
-            'fold':stage.fold,
-            'probability':stage.probability,
-            }
-            stage_id = adapter.create(vals,model_name='crm.stage')
-        if isinstance(stage_id,list):
-            stage_id=stage_id[0]
+            vals = {'name': stage.name,
+                    'on_change': stage.on_change,
+                    'fold': stage.fold,
+                    'probability': stage.probability,
+                    }
+            stage_id = adapter.create(vals, model_name='crm.stage')
+        if isinstance(stage_id, list):
+            stage_id = stage_id[0]
         return {'stage_id': stage_id}
 
     @mapping
@@ -184,4 +196,3 @@ class CrmLeadExportMapper(ExportMapper):
         return {'partner_id': partner_id}
 
     # TODO: After users synch, add salesperson mapping
-

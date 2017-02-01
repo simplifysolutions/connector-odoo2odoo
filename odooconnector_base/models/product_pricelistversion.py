@@ -64,6 +64,7 @@ class ProductPricelistVersionBatchImporter(DirectBatchImporter):
 class ProductPricelistVersionImporter(OdooImporter):
     _model_name = ['odooconnector.product.pricelist.version']
 
+
 @oc_odoo
 class ProductPricelistItemBatchImporter(DirectBatchImporter):
     _model_name = ['odooconnector.product.pricelist.item']
@@ -100,28 +101,32 @@ class ProductPricelistVersionExportMapper(ExportMapper):
               ('date_end', 'date_end')
               ]
 
+
 @oc_odoo
 class ProductPricelistItemTranslationExporter(TranslationExporter):
     _model_name = ['odooconnector.product.pricelist.item']
+
 
 @oc_odoo
 class ProductPricelistItemTranslationExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.pricelist']
     direct = [('name', 'name')]
 
+
 @oc_odoo
 class ProductPricelistItemExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.pricelist.item']
     _map_child_class = OdooExportMapChild
 
-    direct = [('min_quantity', 'min_quantity'),]
+    direct = [('min_quantity', 'min_quantity'), ]
 
     @mapping
     def product_id(self, record):
         if record.product_id:
             binder = self.binder_for('odooconnector.product.product')
             product_id = binder.to_backend(record.product_id.id, wrap=True)
-            return {'product_id': product_id, 'applied_on': '0_product_variant'}
+            return {'product_id': product_id,
+                    'applied_on': '0_product_variant'}
 
     @mapping
     def date_start(self, record):
@@ -133,11 +138,12 @@ class ProductPricelistItemExportMapper(ExportMapper):
 
     @mapping
     def price_discount(self, record):
-        if record.base==1 and round(record.price_discount,2)<=-1.00:
+        if record.base == 1 and round(record.price_discount, 2) <= -1.00:
             return {
-            'compute_price':'fixed',
-            'fixed_price':record.price_surcharge or 0
+                'compute_price': 'fixed',
+                'fixed_price': record.price_surcharge or 0
             }
+
 
 @oc_odoo
 class ProductPricelistItemExporter(OdooExporter):
@@ -151,7 +157,8 @@ class ProductPricelistItemExporter(OdooExporter):
         """ Run some checks before exporting the record """
         if not self.backend_record.default_export_product_pricelist:
             return False
-        if record.openerp_id.base==1 and round(record.openerp_id.price_discount,2)!=-1.00:
+        if record.openerp_id.base == 1 and round(
+                record.openerp_id.price_discount, 2) != -1.00:
             checkpoint = self.unit_for(AddCheckpoint)
             checkpoint.run(record.id)
         domain = self.backend_record.default_export_product_pricelist_domain

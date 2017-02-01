@@ -64,7 +64,7 @@ class PartnerImportMapper(OdooImportMapper):
               ('comment', 'comment'), ('supplier', 'supplier'),
               ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
               ('date', 'date'), ('notify_email', 'notify_email'),
-              ('type','type')]
+              ('type', 'type')]
 
     @mapping
     def country_id(self, record):
@@ -103,16 +103,17 @@ class PartnerImportMapper(OdooImportMapper):
             return {'property_account_position': fiscal_position.id}
 
     @mapping
-    def property_pricelist_id(self,record):
+    def property_pricelist_id(self, record):
         if not record.get('property_pricelist_id'):
             return
         binder = self.binder_for('odooconnector.product.pricelist')
-        pricelist_id = binder.to_openerp(record['property_pricelist_id'][0], wrap=True)
+        pricelist_id = binder.to_openerp(
+            record['property_pricelist_id'][0], wrap=True)
         if pricelist_id:
             return {'property_product_pricelist': pricelist_id}
 
     @mapping
-    def parent_id(self,record):
+    def parent_id(self, record):
         if record.get('parent_id'):
             binder = self.binder_for('odooconnector.res.partner')
             parent_id = binder.to_openerp(record['parent_id'][0], wrap=True)
@@ -163,83 +164,86 @@ class PartnerExportMapper(ExportMapper):
               ('comment', 'comment'), ('supplier', 'supplier'),
               ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
               ('date', 'date'), ('notify_email', 'notify_email'),
-              ('type','type')]
+              ('type', 'type')]
 
     @mapping
-    def property_pricelist_id(self,record):
+    def property_pricelist_id(self, record):
         binder = self.binder_for('odooconnector.product.pricelist')
-        pricelist_id = binder.to_backend(record.openerp_id.property_product_pricelist.id, wrap=True)
+        pricelist_id = binder.to_backend(
+            record.openerp_id.property_product_pricelist.id, wrap=True)
         if pricelist_id:
             return {'property_product_pricelist': pricelist_id}
 
     @mapping
-    def parent_id(self,record):
+    def parent_id(self, record):
         if record.openerp_id.parent_id:
             binder = self.binder_for('odooconnector.res.partner')
-            parent_id = binder.to_backend(record.openerp_id.parent_id.id, wrap=True)
-            print"parent_idparent_idparent_id",parent_id
+            parent_id = binder.to_backend(
+                record.openerp_id.parent_id.id, wrap=True)
             if parent_id:
                 return {'parent_id': parent_id}
 
     @mapping
-    def payment_term_id(self,record):
+    def payment_term_id(self, record):
         if record.openerp_id.property_payment_term:
             adapter = self.unit_for(OdooAdapter)
-            payment_term=record.openerp_id.property_payment_term
+            payment_term = record.openerp_id.property_payment_term
             payment_term_id = adapter.search([
                 ('name', '=', payment_term.name)],
-                                    model_name='account.payment.term')
-            if not payment_term_id:
-                payment_vals={'name':payment_term.name,
-                'note':payment_term.note
-                }
-                payment_term_id = adapter.create(payment_vals,
                 model_name='account.payment.term')
+            if not payment_term_id:
+                payment_vals = {'name': payment_term.name,
+                                'note': payment_term.note
+                                }
+                payment_term_id = adapter.create(
+                    payment_vals, model_name='account.payment.term')
                 for each_line in payment_term.line_ids:
-                    if each_line.value=='porcent':
-                        value_amount=each_line.value_amount*100
+                    if each_line.value == 'porcent':
+                        value_amount = each_line.value_amount * 100
                     else:
-                        value_amount=each_line.value_amount
-                    line_vals={'value':each_line.value,
-                    'days':each_line.days,
-                    'value_amount':value_amount,
-                    'payment_id':payment_term_id,
-                    }
+                        value_amount = each_line.value_amount
+                    line_vals = {'value': each_line.value,
+                                 'days': each_line.days,
+                                 'value_amount': value_amount,
+                                 'payment_id': payment_term_id,
+                                 }
                     adapter.create(line_vals,
-                        model_name='account.payment.term.line')
-            if isinstance(payment_term_id,list):
-                payment_term_id=payment_term_id[0]
+                                   model_name='account.payment.term.line')
+            if isinstance(payment_term_id, list):
+                payment_term_id = payment_term_id[0]
             return {'property_payment_term_id': payment_term_id}
 
     @mapping
-    def country_id(self,record):
+    def country_id(self, record):
         if record.openerp_id.country_id:
             adapter = self.unit_for(OdooAdapter)
             country_id = adapter.search([
                 ('name', '=', record.openerp_id.country_id.name)],
-                                    model_name='res.country')
+                model_name='res.country')
             if country_id:
                 return {'country_id': country_id[0]}
 
     @mapping
-    def state_id(self,record):
+    def state_id(self, record):
         if record.openerp_id.state_id:
             adapter = self.unit_for(OdooAdapter)
             state_id = adapter.search([
                 ('name', '=', record.openerp_id.state_id.name)],
-                                    model_name='res.country.state')
+                model_name='res.country.state')
             if state_id:
                 return {'state_id': state_id[0]}
 
     @mapping
-    def property_account_position(self,record):
+    def property_account_position(self, record):
         if record.openerp_id.property_account_position:
             adapter = self.unit_for(OdooAdapter)
             fiscal_id = adapter.search([
-                ('name', '=', record.openerp_id.property_account_position.name)],
-                                    model_name='account.fiscal.position')
+                ('name', '=', record.openerp_id.
+                 property_account_position.name)],
+                model_name='account.fiscal.position')
             if fiscal_id:
                 return {'property_account_position_id': fiscal_id[0]}
+
 
 @oc_odoo
 class PartnerBatchExporter(DirectBatchExporter):
@@ -247,4 +251,3 @@ class PartnerBatchExporter(DirectBatchExporter):
 
     def _get_remote_model(self):
         return 'res.partner'
-

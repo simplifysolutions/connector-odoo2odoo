@@ -59,6 +59,7 @@ def get_environment(session, model_name, backend_id, api=None):
         with env.session.change_context(lang=lang_code):
             return env
 
+
 def add_checkpoint(session, model_name, record_id, backend_id):
     """ Add a row in the model ``connector.checkpoint`` for a record,
     meaning it has to be reviewed by a user.
