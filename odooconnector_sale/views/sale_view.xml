@@ -19,6 +19,16 @@
                         </field>
                     </page>
                 </xpath>
+                <xpath expr="//field[@name='order_line']/form/field[last()]" position="after">
+                        <field name="oc_bind_ids">
+                            <tree string="Bindings" editable="bottom">
+                                <field name="backend_id" />
+                                <field name="external_id" />
+                                <field name="exported_record" readonly="1" />
+                            </tree>
+                        </field>
+                </xpath>
+
 
             </field>
         </record>

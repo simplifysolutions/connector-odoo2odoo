@@ -21,6 +21,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/sale_view.xml',
+        'views/sales_team.xml',
         'views/account_tax_view.xml',
         'views/odooconnector_backend.xml',
         'views/scheduler.xml',

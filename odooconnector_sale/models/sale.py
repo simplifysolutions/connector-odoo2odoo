@@ -1,11 +1,9 @@
 # -*- encoding: utf-8 -*-
 # Copyright (C) 2004-Today Simplify Solutions. All Rights Reserved
 
-import logging
-from openerp import models, fields
+from openerp import models, fields, api
 from openerp.addons.odooconnector_base.backend import oc_odoo
 from openerp.addons.odooconnector_base.unit.backend_adapter import OdooAdapter
-
 from openerp.addons.odooconnector_base.unit.import_synchronizer import (
     OdooImporter, DirectBatchImporter)
 from openerp.addons.connector.unit.mapper import (ExportMapper, ImportMapper,
@@ -16,9 +14,9 @@ from openerp.addons.odooconnector_base.unit.mapper import (
 from openerp.addons.odooconnector_base.unit.export_synchronizer import (
     OdooExporter)
 from openerp.addons.odooconnector_base.unit.import_synchronizer import import_record
-_logger = logging.getLogger(__name__)
 from ..unit.mapper import (OdooExportMapSaleChild, OdooImportMapSaleChild)
-
+import logging
+_logger = logging.getLogger(__name__)
 
 """
 
@@ -62,6 +60,27 @@ class OdooConnectorSaleOrder(models.Model):
         required=True,
         ondelete='restrict'
     )
+    odooconnector_order_line_ids = fields.One2many(
+        comodel_name='odooconnector.sale.order.line',
+        inverse_name='odooconnector_order_id',
+        string='Odooconnector Order Lines'
+    )
+
+#    @api.model
+#    def create(self,vals):
+#        binding_id=super(OdooConnectorSaleOrder, self).create(vals)
+#        conn_order_line=self.env['odooconnector.sale.order.line']
+#        for each in binding_id.order_line:
+#            if not each.oc_bind_ids:
+#                vals={
+#                    'backend_id': binding_id.backend_id.id,
+#                    'openerp_id': each.id,
+#                    'odooconnector_order_id':binding_id.id,
+#                    'exported_record': True,
+#                    'order_id':binding_id.openerp_id.id,
+#                }
+#                conn_order_line.create(vals)
+#        return binding_id
 
 
 class SaleOrder(models.Model):
@@ -80,12 +99,28 @@ class OdooConnectorSaleOrderLine(models.Model):
     _inherits = {'sale.order.line': 'openerp_id'}
     _description = 'Odoo Connector Sale Order Line'
 
+    odooconnector_order_id = fields.Many2one(
+        comodel_name='odooconnector.sale.order',
+        string='Odooconnector Sale Order',
+        required=True,
+        ondelete='cascade',
+        select=True)
     openerp_id = fields.Many2one(
         comodel_name='sale.order.line',
         string='Sale Order Line',
         required=True,
         ondelete='restrict'
     )
+
+    @api.model
+    def create(self, vals):
+        if vals.get('odooconnector_order_id'):
+            odooconnector_order_id = vals['odooconnector_order_id']
+            binding = self.env['odooconnector.sale.order'].browse(
+                odooconnector_order_id)
+            vals['order_id'] = binding.openerp_id.id
+        binding = super(OdooConnectorSaleOrderLine, self).create(vals)
+        return binding
 
 
 class SaleOrderLine(models.Model):
@@ -130,34 +165,6 @@ class SaleOrderImporter(OdooImporter):
 #                self._import_dependency(record['pricelist_id'][0],
 #                                        'odooconnector.product.pricelist')
 
-    def _after_import(self, binding):
-        if binding:
-            adapter = self.unit_for(OdooAdapter)
-            binding_model = self.env['odooconnector.sale.order.line'].with_context(
-                connector_no_export=True)
-            sale_order = binding.openerp_id
-            for each_line in sale_order.order_line:
-                if not each_line.oc_bind_ids:
-                    product_id = self.binder_for('odooconnector.product.product').to_backend(
-                        each_line.product_id.id,
-                        wrap=True
-                    )
-                    if product_id:
-                        domain = [('product_id', '=', product_id)]
-                    line_id = adapter.search([('order_id', '=', binding.external_id)] + domain,
-                                             model_name='sale.order.line')
-                    if line_id:
-                        data = {
-                            'backend_id': binding.backend_id.id,
-                            'openerp_id': each_line.id,
-                            'external_id': line_id[0],
-                            'exported_record': False,
-                            'sync_date': fields.Datetime.now(),
-                        }
-                        binding_model.create(data)
-
-        return True
-
 
 @oc_odoo
 class SaleOrderImportMapper(OdooImportMapper):
@@ -170,7 +177,8 @@ class SaleOrderImportMapper(OdooImportMapper):
               ]
 
     children = [
-        ('order_line', 'order_line', 'odooconnector.sale.order.line')
+        ('order_line', 'odooconnector_order_line_ids',
+         'odooconnector.sale.order.line')
     ]
 
     def _map_child(self, map_record, from_attr, to_attr, model_name):
@@ -360,6 +368,10 @@ class SaleOrderLineImportMapper(OdooImportMapper):
             return {'line_id': line_id}
 
     @mapping
+    def external_id(self, record):
+        return {'external_id': record.get('id')}
+
+    @mapping
     def product_id(self, record):
         binder = self.binder_for('odooconnector.product.product')
         product_id = binder.to_openerp(record['product_id'][0], unwrap=True)
@@ -405,23 +417,27 @@ class SaleOrderExporter(OdooExporter):
 
     def _pre_export_check(self, record):
         binder = self.binder_for('odooconnector.res.partner')
-        
+
         if record.openerp_id.partner_id:
-            partner_id = binder.to_backend(record.openerp_id.partner_id.id, wrap=True)
+            partner_id = binder.to_backend(
+                record.openerp_id.partner_id.id, wrap=True)
             if not partner_id:
                 return False
         if record.openerp_id.partner_invoice_id:
-            partner_invoice_id = binder.to_backend(record.openerp_id.partner_invoice_id.id, wrap=True)
+            partner_invoice_id = binder.to_backend(
+                record.openerp_id.partner_invoice_id.id, wrap=True)
             if not partner_invoice_id:
                 return False
         if record.openerp_id.partner_shipping_id:
-            partner_shipping_id = binder.to_backend(record.openerp_id.partner_shipping_id.id, wrap=True)
+            partner_shipping_id = binder.to_backend(
+                record.openerp_id.partner_shipping_id.id, wrap=True)
             if not partner_shipping_id:
                 return False
         if not self.backend_record.default_export_product_uom:
             return False
         domain = self.backend_record.default_export_product_uom_domain
         return self._pre_export_domain_check(record, domain)
+
     def _after_export(self, record_created):
         # create a ic_binding in the backend, indicating that the partner
         # was exported
@@ -446,15 +462,17 @@ class SaleOrderLineExporter(OdooExporter):
 
     def _get_remote_model(self):
         return 'sale.order.line'
-    
+
     def _pre_export_check(self, record):
         binder = self.binder_for('odooconnector.product.product')
         if record.openerp_id.product_id:
-            product_id = binder.to_backend(record.openerp_id.product_id.id, wrap=True)
+            product_id = binder.to_backend(
+                record.openerp_id.product_id.id, wrap=True)
             if not product_id:
                 return False
         if record.openerp_id.order_id:
-            order_id = self.binder_for('odooconnector.sale.order').to_backend(record.openerp_id.order_id.id, wrap=True)
+            order_id = self.binder_for('odooconnector.sale.order').to_backend(
+                record.openerp_id.order_id.id, wrap=True)
             if not order_id:
                 return False
         if not self.backend_record.default_export_product_uom:
@@ -491,7 +509,7 @@ class SaleOrderExportMapper(ExportMapper):
     ]
 
 #    children = [
-#        ('order_line', 'order_line', 'odooconnector.sale.order.line')
+#        ('odooconnector_order_line_ids', 'order_line', 'odooconnector.sale.order.line')
 #    ]
 
     @mapping
@@ -579,10 +597,10 @@ class SaleOrderLineExportMapper(ExportMapper):
 
     @mapping
     def product_id(self, record):
-        product_id = self.binder_for('odooconnector.product.product').to_backend(
-            record.product_id.id,
-            wrap=True
-        )
+        product_id = self.binder_for('odooconnector.product.product').\
+            to_backend(record.product_id.id,
+                       wrap=True
+                       )
         if product_id:
             return {'product_id': product_id}
 

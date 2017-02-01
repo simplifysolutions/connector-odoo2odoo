@@ -11,4 +11,5 @@ class OdooAdapterSale(OdooAdapter):
         'odooconnector.sale.order',
         'odooconnector.sale.order.line',
         'odooconnector.account.tax',
+        'odooconnector.crm.case.section',
     ]
