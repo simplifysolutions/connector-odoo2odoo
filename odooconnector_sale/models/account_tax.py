@@ -116,17 +116,17 @@ class AccountTaxExporterMapper(ExportMapper):
 
     direct = [
         ('name', 'name'), ('description', 'description'),
-        #        ('type', 'type'),
-        #        ('child_depend',)
     ]
 
     @mapping
     def type(self, record):
-        if record.openerp_id.child_depend:
+        if record.child_depend:
             type = 'group'
+        elif record.price_include:
+            type = 'division'
         else:
-            type = record.openerp_id.type
-        return {'type': type}
+            type = record.type
+        return {'amount_type': type}
 
     @mapping
     def amount(self, record):
@@ -136,12 +136,23 @@ class AccountTaxExporterMapper(ExportMapper):
             amount = amount * 100
         return {'amount': amount}
 
+#    @mapping
+#    def parent_id(self, record):
+#        if record.parent_id:
+#            binder = self.binder_for('odooconnector.account.tax')
+#            parent_id = binder.to_backend(
+#                record.parent_id.id, wrap=True)
+#            print"parent_idparent_idparent_id", parent_id
+#            if parent_id:
+#                return {'parent_id': parent_id}
+
     @mapping
-    def parent_id(self, record):
-        if record.openerp_id.parent_id:
+    def children_tax_ids(self, record):
+        if record.child_ids:
+            child_tax_ids = []
             binder = self.binder_for('odooconnector.account.tax')
-            parent_id = binder.to_backend(
-                record.openerp_id.parent_id.id, wrap=True)
-            print"parent_idparent_idparent_id", parent_id
-            if parent_id:
-                return {'parent_id': parent_id}
+            for each_line in record.child_ids:
+                tax_id = binder.to_backend(each_line.id, wrap=True)
+                if tax_id:
+                    child_tax_ids.append(tax_id)
+            return {'children_tax_ids': [(6, 0, child_tax_ids)]}
