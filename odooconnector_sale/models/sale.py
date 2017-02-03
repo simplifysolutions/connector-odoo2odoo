@@ -66,22 +66,6 @@ class OdooConnectorSaleOrder(models.Model):
         string='Odooconnector Order Lines'
     )
 
-#    @api.model
-#    def create(self,vals):
-#        binding_id=super(OdooConnectorSaleOrder, self).create(vals)
-#        conn_order_line=self.env['odooconnector.sale.order.line']
-#        for each in binding_id.order_line:
-#            if not each.oc_bind_ids:
-#                vals={
-#                    'backend_id': binding_id.backend_id.id,
-#                    'openerp_id': each.id,
-#                    'odooconnector_order_id':binding_id.id,
-#                    'exported_record': True,
-#                    'order_id':binding_id.openerp_id.id,
-#                }
-#                conn_order_line.create(vals)
-#        return binding_id
-
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -236,6 +220,24 @@ class SaleOrderImportMapper(OdooImportMapper):
         if pricelist_id:
             return {'pricelist_id': pricelist_id}
 
+    @mapping
+    def section_id(self, record):
+        if not record.get('team_id'):
+            return
+        binder = self.binder_for('odooconnector.crm.case.section')
+        section_id = binder.to_openerp(record['team_id'][0], unwrap=True)
+        if section_id:
+            return {'section_id': section_id}
+
+    @mapping
+    def user_id(self, record):
+        if not record.get('user_id'):
+            return
+        binder = self.binder_for('odooconnector.res.users')
+        user_id = binder.to_openerp(record['user_id'][0], unwrap=True)
+        if user_id:
+            return {'user_id': user_id}
+
 #    @mapping
 #    def warehouse_id(self, record):
 #        if not record.get('warehouse_id'):
@@ -363,9 +365,10 @@ class SaleOrderLineImportMapper(OdooImportMapper):
     @mapping
     def line_id(self, record):
         binder = self.binder_for('odooconnector.sale.order.line')
-        line_id = binder.to_openerp(record['id'], unwrap=True)
+        line_id = binder.to_openerp(record['id'])
         if line_id:
-            return {'line_id': line_id}
+            # id is of odooconnector.sale.order.line record
+            return {'id': line_id}
 
     @mapping
     def external_id(self, record):
@@ -410,7 +413,7 @@ class SaleOrderLineImportMapper(OdooImportMapper):
 
 @oc_odoo
 class SaleOrderExporter(OdooExporter):
-    _model_name = ['odooconnector.sale.order']
+    _model_name = 'odooconnector.sale.order'
 
     def _get_remote_model(self):
         return 'sale.order'
@@ -418,19 +421,19 @@ class SaleOrderExporter(OdooExporter):
     def _pre_export_check(self, record):
         binder = self.binder_for('odooconnector.res.partner')
 
-        if record.openerp_id.partner_id:
+        if record.partner_id:
             partner_id = binder.to_backend(
-                record.openerp_id.partner_id.id, wrap=True)
+                record.partner_id.id, wrap=True)
             if not partner_id:
                 return False
-        if record.openerp_id.partner_invoice_id:
+        if record.partner_invoice_id:
             partner_invoice_id = binder.to_backend(
-                record.openerp_id.partner_invoice_id.id, wrap=True)
+                record.partner_invoice_id.id, wrap=True)
             if not partner_invoice_id:
                 return False
-        if record.openerp_id.partner_shipping_id:
+        if record.partner_shipping_id:
             partner_shipping_id = binder.to_backend(
-                record.openerp_id.partner_shipping_id.id, wrap=True)
+                record.partner_shipping_id.id, wrap=True)
             if not partner_shipping_id:
                 return False
         if not self.backend_record.default_export_product_uom:
@@ -439,7 +442,7 @@ class SaleOrderExporter(OdooExporter):
         return self._pre_export_domain_check(record, domain)
 
     def _after_export(self, record_created):
-        # create a ic_binding in the backend, indicating that the partner
+        # create a ic_binding in the backend, indicating that the sale order
         # was exported
         if record_created:
             record_id = self.binder.unwrap_binding(self.binding_id)
@@ -454,6 +457,18 @@ class SaleOrderExporter(OdooExporter):
                 model_name='odooconnector.sale.order',
                 context={'connector_no_export': True}
             )
+        binding = self.env[self._model_name].browse(self.binding_id)
+        conn_order_line = self.env['odooconnector.sale.order.line']
+        for each in binding.order_line:
+            if not each.oc_bind_ids:
+                vals = {
+                    'backend_id': binding.backend_id.id,
+                    'openerp_id': each.id,
+                    'odooconnector_order_id': binding.id,
+                    'exported_record': True,
+                    'order_id': binding.openerp_id.id,
+                }
+                conn_order_line.create(vals)
 
 
 @oc_odoo
@@ -465,14 +480,14 @@ class SaleOrderLineExporter(OdooExporter):
 
     def _pre_export_check(self, record):
         binder = self.binder_for('odooconnector.product.product')
-        if record.openerp_id.product_id:
+        if record.product_id:
             product_id = binder.to_backend(
-                record.openerp_id.product_id.id, wrap=True)
+                record.product_id.id, wrap=True)
             if not product_id:
                 return False
-        if record.openerp_id.order_id:
+        if record.order_id:
             order_id = self.binder_for('odooconnector.sale.order').to_backend(
-                record.openerp_id.order_id.id, wrap=True)
+                record.order_id.id, wrap=True)
             if not order_id:
                 return False
         if not self.backend_record.default_export_product_uom:
@@ -481,7 +496,7 @@ class SaleOrderLineExporter(OdooExporter):
         return self._pre_export_domain_check(record, domain)
 
     def _after_export(self, record_created):
-        # create a ic_binding in the backend, indicating that the partner
+        # create a ic_binding in the backend, indicating that the order line
         # was exported
         if record_created:
             record_id = self.binder.unwrap_binding(self.binding_id)
@@ -505,7 +520,8 @@ class SaleOrderExportMapper(ExportMapper):
 
     direct = [
         ('date_order', 'date_order'), ('origin', 'origin'),
-        ('client_order_ref', 'client_order_ref')
+        ('client_order_ref', 'client_order_ref'), ('note', 'note'),
+        ('picking_policy', 'picking_policy')
     ]
 
 #    children = [
@@ -542,29 +558,44 @@ class SaleOrderExportMapper(ExportMapper):
         if pricelist_id:
             return {'pricelist_id': pricelist_id}
 
+    #section_id is team_id  in v10
+    @mapping
+    def team_id(self, record):
+        binder = self.binder_for('odooconnector.crm.case.section')
+        team_id = binder.to_backend(record.section_id.id, wrap=True)
+        if team_id:
+            return {'team_id': team_id}
+
+    @mapping
+    def user_id(self, record):
+        binder = self.binder_for('odooconnector.res.users')
+        user_id = binder.to_backend(record.user_id.id, wrap=True)
+        if user_id:
+            return {'user_id': user_id}
+
     @mapping
     def fiscal_position_id(self, record):
-        if record.openerp_id.fiscal_position:
+        if record.fiscal_position:
             adapter = self.unit_for(OdooAdapter)
             fiscal_id = adapter.search([
-                ('name', '=', record.openerp_id.fiscal_position.name)],
+                ('name', '=', record.fiscal_position.name)],
                 model_name='account.fiscal.position')
             if fiscal_id:
                 return {'fiscal_position_id': fiscal_id[0]}
 
     @mapping
     def payment_term_id(self, record):
-        if record.openerp_id.payment_term:
+        if record.payment_term:
             adapter = self.unit_for(OdooAdapter)
             payment_term_id = adapter.search([
-                ('name', '=', record.openerp_id.payment_term.name)],
+                ('name', '=', record.payment_term.name)],
                 model_name='account.payment.term')
             if payment_term_id:
                 return {'payment_term_id': payment_term_id[0]}
 
     @mapping
     def state(self, record):
-        state = ORDER_STATUS_MAPPING_8_to_10[record.openerp_id.state]
+        state = ORDER_STATUS_MAPPING_8_to_10[record.state]
         return {'state': state}
 
 
@@ -577,6 +608,7 @@ class SaleOrderLineExportMapper(ExportMapper):
         ('product_uom_qty', 'product_uom_qty'),
     ]
 
+    # doing mapping to update correct orderline record on v10
     @mapping
     def line_id(self, record):
         line_id = self.binder_for('odooconnector.sale.order.line').to_backend(
@@ -584,7 +616,7 @@ class SaleOrderLineExportMapper(ExportMapper):
             wrap=True
         )
         if line_id:
-            return {'line_id': line_id}
+            return {'id': line_id}
 
     @mapping
     def order_id(self, record):
@@ -622,7 +654,6 @@ class SaleOrderLineExportMapper(ExportMapper):
             return
         tax_ids = []
         binder = self.binder_for('odooconnector.account.tax')
-
         for each_tax in record.tax_id:
             tax_id = binder.to_backend(each_tax.id, wrap=True)
             if tax_id:

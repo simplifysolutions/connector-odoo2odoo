@@ -68,11 +68,11 @@ class ResUsersExporter(OdooExporter):
     def _pre_export_check(self, record):
         if not record.external_id:
             adapter = self.unit_for(OdooAdapter)
-            user_id = adapter.search([('name', '=', record.openerp_id.name),
-                                      ('login', '=', record.openerp_id.login)],
+            user_id = adapter.search([('name', '=', record.name),
+                                      ('login', '=', record.login)],
                                      model_name='res.users')
-#            if user_id:
-#                record.write({'external_id':user_id[0]})
+            if user_id:
+                record.write({'external_id': user_id[0]})
         if not self.backend_record.default_export_res_users:
             return False
         domain = self.backend_record.default_export_res_users_domain

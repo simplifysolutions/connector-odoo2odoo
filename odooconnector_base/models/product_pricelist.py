@@ -191,11 +191,11 @@ class ProductPricelistExportMapper(ExportMapper):
 
     @mapping
     def currency_id(self, record):
-        if not record.openerp_id.currency_id:
+        if not record.currency_id:
             return
         adapter = self.unit_for(OdooAdapter)
         currency_id = adapter.search([
-            ('name', '=', record.openerp_id.currency_id.name)],
+            ('name', '=', record.currency_id.name)],
             model_name='res.currency')
         if currency_id:
             return {'currency_id': currency_id[0]}

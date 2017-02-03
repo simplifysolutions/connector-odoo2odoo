@@ -19,8 +19,8 @@ class OdooExportMapSaleChild(ExportMapChild):
         )
         item_list = []
         for each in items:
-            if each.get('line_id'):
-                item_list.append((1, each.get('line_id'), each))
+            if each.get('id'):
+                item_list.append((1, each.get('id'), each))
             else:
                 item_list.append((0, 0, each))
         print"item_listitem_list", item_list
@@ -33,8 +33,8 @@ class OdooImportMapSaleChild(ImportMapChild):
         item_list = []
         if item_values:
             for each in item_values:
-                if each.get('line_id'):
-                    item_list.append((1, each.get('line_id'), each))
+                if each.get('id'):
+                    item_list.append((1, each.get('id'), each))
                 else:
                     item_list.append((0, 0, each))
 #        else:

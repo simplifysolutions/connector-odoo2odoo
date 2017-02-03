@@ -162,7 +162,7 @@ class ProductUomExporter(OdooExporter):
     def _pre_export_check(self, record):
         if not record.external_id:
             adapter = self.unit_for(OdooAdapter)
-            uom_id = adapter.search([('name', '=', record.openerp_id.name)],
+            uom_id = adapter.search([('name', '=', record.name)],
                                     model_name='product.uom')
             if uom_id:
                 record.write({'external_id': uom_id[0]})
