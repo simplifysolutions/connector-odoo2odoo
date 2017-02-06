@@ -55,7 +55,8 @@ class CrmCaseSectionImporterMapper(OdooImportMapper):
     direct = [
         ('name', 'name'), ('use_quotations', 'use_quotations'),
         ('use_leads', 'use_leads'), ('use_opportunities', 'use_opportunities'),
-        ('invoiced_target', 'invoiced_target'),
+        ('invoiced_target', 'invoiced_target'),('alias_name','alias_name'),
+        ('alias_contact','alias_contact'),('color','color')
     ]
 
 
@@ -108,7 +109,8 @@ class CrmCaseSectionExporterMapper(ExportMapper):
     direct = [
         ('name', 'name'), ('use_quotations', 'use_quotations'),
         ('use_leads', 'use_leads'), ('use_opportunities', 'use_opportunities'),
-        ('invoiced_target', 'invoiced_target'),
+        ('invoiced_target', 'invoiced_target'),('alias_name','alias_name'),
+        ('alias_contact','alias_contact'),('color','color')
     ]
 
     @mapping
