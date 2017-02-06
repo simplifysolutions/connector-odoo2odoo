@@ -28,7 +28,6 @@
         'views/partner.xml',
         'views/res_users_view.xml',
         'views/product.xml',
-        'views/crm_lead.xml',
         'views/product_uom.xml',
         'views/price_list.xml',
     ],

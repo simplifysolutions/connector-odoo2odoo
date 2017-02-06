@@ -92,10 +92,6 @@ class OdooBackend(models.Model):
         string='Partner domain filter',
     )
 
-    import_lead_domain_filter = fields.Char(
-        string='Lead domain filter',
-    )
-
     import_product_domain_filter = fields.Char(
         string='Product domain filter',
     )
@@ -153,15 +149,6 @@ class OdooBackend(models.Model):
         default='[]'
     )
 
-    default_export_lead = fields.Boolean(
-        string='Export Crm Leads'
-    )
-
-    default_export_lead_domain = fields.Char(
-        string='Export Crm Leads Domain',
-        default='[]'
-    )
-
     default_export_product_pricelist = fields.Boolean(
         string='Export Pricelist'
     )
@@ -182,21 +169,6 @@ class OdooBackend(models.Model):
                 filters = eval(filters)
 
             import_batch(session, 'odooconnector.res.partner', backend.id,
-                         filters)
-
-        return True
-
-    @api.multi
-    def import_leads(self):
-        """ Import leads from external system """
-        session = ConnectorSession(self.env.cr, self.env.uid,
-                                   context=self.env.context)
-        for backend in self:
-            filters = self.import_lead_domain_filter
-            if filters and isinstance(filters, str):
-                filters = eval(filters)
-
-            import_batch(session, 'odooconnector.crm.lead', backend.id,
                          filters)
 
         return True
@@ -249,12 +221,6 @@ class OdooBackend(models.Model):
     def export_product_uom(self):
         """ Export products to external system """
         self._export_records('product.uom')
-        return True
-
-    @api.multi
-    def export_leads(self):
-        """ Export Leads to external system """
-        self._export_records('crm.lead')
         return True
 
     @api.multi
