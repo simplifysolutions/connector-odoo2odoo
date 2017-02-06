@@ -55,7 +55,8 @@ class CrmCaseSectionImporterMapper(OdooImportMapper):
     direct = [
         ('name', 'name'), ('use_quotations', 'use_quotations'),
         ('use_leads', 'use_leads'), ('use_opportunities', 'use_opportunities'),
-        ('invoiced_target', 'invoiced_target'),
+        ('invoiced_target', 'invoiced_target'), ('alias_name', 'alias_name'),
+        ('alias_contact', 'alias_contact'), ('color', 'color')
     ]
 
 
@@ -108,7 +109,8 @@ class CrmCaseSectionExporterMapper(ExportMapper):
     direct = [
         ('name', 'name'), ('use_quotations', 'use_quotations'),
         ('use_leads', 'use_leads'), ('use_opportunities', 'use_opportunities'),
-        ('invoiced_target', 'invoiced_target'),
+        ('invoiced_target', 'invoiced_target'), ('alias_name', 'alias_name'),
+        ('alias_contact', 'alias_contact'), ('color', 'color')
     ]
 
     @mapping
@@ -123,3 +125,12 @@ class CrmCaseSectionExporterMapper(ExportMapper):
                 member_ids.append(user_id)
         # member_ids is one2many in v10
         return {'member_ids': [(6, False, member_ids)]}
+
+    @mapping
+    def user_id(self, record):
+        if not record.user_id:
+            return
+        binder = self.binder_for('odooconnector.res.users')
+        user_id = binder.to_backend(record.user_id.id, wrap=True)
+        if user_id:
+            return {'user_id': user_id}

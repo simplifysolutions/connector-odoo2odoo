@@ -37,7 +37,6 @@ on_record_write.fire = new_fire(original_fire_write)
                                'odooconnector.product.uom',
                                'odooconnector.res.partner',
                                'odooconnector.res.users',
-                               'odooconnector.crm.lead',
                                'odooconnector.product.pricelist',
                                'odooconnector.product.pricelist.item',
                                ])
@@ -53,7 +52,6 @@ def export_odooconnector_object(session, model_name, record_id, fields=None):
 @on_record_create(model_names=['product.product',
                                'res.users',
                                'res.partner',
-                               'crm.lead',
                                'product.pricelist',
                                'product.pricelist.item',
                                'product.uom',
@@ -121,7 +119,7 @@ def update_product(session, model_name, record_id, fields=None):
 
 @on_record_write(model_names=[
     'res.partner', 'res.users',
-    'crm.lead', 'product.uom', 'product.pricelist.item'])
+    'product.uom', 'product.pricelist.item'])
 def update_records(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return
