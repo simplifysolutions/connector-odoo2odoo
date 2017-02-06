@@ -15,7 +15,6 @@ class OdooModelBinder(Binder):
         'odooconnector.res.partner',
         'odooconnector.res.users',
         'odooconnector.product.product',
-        'odooconnector.crm.lead',
         'odooconnector.product.supplierinfo',
         'odooconnector.product.uom',
         'odooconnector.product.pricelist',

@@ -42,7 +42,8 @@ class OdooBackend(models.Model):
         default='[]'
     )
     import_so_since = fields.Datetime(
-        string='Import SO Since'
+        string='Import SO Since',
+        default=datetime.datetime.now()
     )
 
     @api.model
@@ -79,13 +80,7 @@ class OdooBackend(models.Model):
         return True
 
     @api.multi
-    def export_so_line(self):
-        """ Export sale orders to external system """
-        self._export_records('sale.order.line')
-        return True
-
-    @api.multi
     def export_taxes(self):
-        """ Export sale orders to external system """
+        """ Export sale orders taxes to external system """
         self._export_records('account.tax')
         return True

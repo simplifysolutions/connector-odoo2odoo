@@ -5,13 +5,13 @@ import logging
 
 from openerp import models, fields
 from openerp.addons.connector.unit.mapper import (mapping, ExportMapper)
-from ..unit.backend_adapter import OdooAdapter
-from ..unit.import_synchronizer import (OdooImporter,
-                                        DirectBatchImporter)
-from ..unit.export_synchronizer import (OdooExporter,
-                                        DirectBatchExporter)
-from ..unit.mapper import OdooImportMapper
-from ..backend import oc_odoo
+from openerp.addons.odooconnector_base.unit.backend_adapter import OdooAdapter
+from openerp.addons.odooconnector_base.unit.import_synchronizer import (
+    OdooImporter, DirectBatchImporter)
+from openerp.addons.odooconnector_base.unit.export_synchronizer import (
+    OdooExporter, DirectBatchExporter)
+from openerp.addons.odooconnector_base.unit.mapper import OdooImportMapper
+from openerp.addons.odooconnector_base.backend import oc_odoo
 
 
 _logger = logging.getLogger(__name__)
@@ -111,6 +111,40 @@ class CrmLeadImportMapper(OdooImportMapper):
         partner_id = binder.to_openerp(record['partner_id'][0], unwrap=True)
         return {'partner_id': partner_id}
 
+    @mapping
+    def user_id(self, record):
+        if not record.get('user_id'):
+            return
+        binder = self.binder_for('odooconnector.res.users')
+        user_id = binder.to_openerp(record['user_id'][0], unwrap=True)
+        return {'user_id': user_id}
+
+    @mapping
+    def section_id(self, record):
+        if not record.get('team_id'):
+            return
+        binder = self.binder_for('odooconnector.crm.case.section')
+        section_id = binder.to_openerp(record['team_id'][0], unwrap=True)
+        if section_id:
+            return {'section_id': section_id}
+
+    @mapping
+    def tag_ids(self, record):
+        if not record.get('tag_ids'):
+            return
+        tag_ids = []
+        adapter = self.unit_for(OdooAdapter)
+        tags = adapter.read(record.get('tag_ids'), model_name='crm.lead.tag')
+        crm_tags = self.env['crm.case.categ']
+        for each_tag in tags:
+            tag = crm_tags.search([('name', '=', each_tag['name'])])
+            if not tag:
+                tag = crm_tags.create({'name': each_tag['name']})
+            if isinstance(tag, list):
+                tag = tag[0]
+            tag_ids.append(tag.id)
+        return {'categ_ids': [(6, 0, tag_ids)]}
+
 
 @oc_odoo
 class CrmLeadExporter(OdooExporter):
@@ -195,4 +229,36 @@ class CrmLeadExportMapper(ExportMapper):
         partner_id = binder.to_backend(record.partner_id.id, wrap=True)
         return {'partner_id': partner_id}
 
-    # TODO: After users synch, add salesperson mapping
+    @mapping
+    def user_id(self, record):
+        if not record.user_id:
+            return
+        binder = self.binder_for('odooconnector.res.users')
+        user_id = binder.to_backend(record.user_id.id, wrap=True)
+        if user_id:
+            return {'user_id': user_id}
+
+    # section_id is team_id  in v10
+    @mapping
+    def team_id(self, record):
+        binder = self.binder_for('odooconnector.crm.case.section')
+        team_id = binder.to_backend(record.section_id.id, wrap=True)
+        if team_id:
+            return {'team_id': team_id}
+
+    @mapping
+    def tag_ids(self, record):
+        if not record.categ_ids:
+            return
+        tag_ids = []
+        for each_tag in record.categ_ids:
+            adapter = self.unit_for(OdooAdapter)
+            tag_id = adapter.search([('name', '=', each_tag.name)],
+                                    model_name='crm.lead.tag')
+            if not tag_id:
+                tag_id = adapter.create({'name': each_tag.name},
+                                        model_name='crm.lead.tag')
+            if isinstance(tag_id, list):
+                tag_id = tag_id[0]
+            tag_ids.append(tag_id)
+        return {'tag_ids': [(6, 0, tag_ids)]}

@@ -64,14 +64,6 @@
                                                 type="object"
                                                 string="Import Partners" />
                                     </group>
-                                    <group>
-                                        <field name="import_lead_domain_filter" />
-                                        <button name="import_leads"
-                                                type="object"
-                                                string="Import Leads" />
-                                    </group>
-                                    <!--<field name="import_product_domain_filter" />-->
-
                                 </group>
                                 <group string="Export">
                                     <group>
@@ -85,7 +77,6 @@
                                                 type="object"
                                                 string="Export Partners" />
                                     </group>
-                                    <!--<group>-->
                                     <group>
                                         <field name="default_export_res_users"/>
                                         <field name="default_export_res_users_domain"
@@ -95,14 +86,6 @@
                                                 string="Export Users" />
                                     </group>
                                     <group>
-                                        <field name="default_export_lead"/>
-                                        <field name="default_export_lead_domain"
-                                               attrs="{'invisible': [('default_export_lead', '=', False)]}"/>
-                                        <button name="export_leads"
-                                                type="object"
-                                                string="Export Leads" />
-                                    </group>
-                                    <group>
                                         <field name="default_export_product_pricelist"/>
                                         <field name="default_export_product_pricelist_domain"
                                                attrs="{'invisible': [('default_export_product_pricelist', '=', False)]}"/>
@@ -110,7 +93,6 @@
                                                 type="object"
                                                 string="Export Pricelist" />
                                     </group>
-                                    <!--</group>-->
                                 </group>
                             </page>
                             <page string="Product">

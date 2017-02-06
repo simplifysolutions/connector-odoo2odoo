@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_odooconnector_attachment_backend_form" model="ir.ui.view">
+            <field name="name">odooconnector.attachment.backend.form</field>
+            <field name="model">odooconnector.backend</field>
+            <field name="inherit_id" ref="odooconnector_base.view_odooconnector_backend_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[last()]" position="after">
+                    <page string="CRM">
+                        <group string="Import">
+                            <group>
+                                <field name="import_lead_domain_filter" />
+                                <field name="import_leads_since" />
+                                <button name="import_leads"
+                                        type="object"
+                                        string="Import Leads" />
+                            </group>
+                        </group>
+                        <group string="Export">
+                            <group>
+                                <field name="default_export_lead"/>
+                                <field name="default_export_lead_domain"
+                                       attrs="{'invisible': [('default_export_lead', '=', False)]}"/>
+                                <button name="export_leads"
+                                        type="object"
+                                        string="Export Leads" />
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</openerp>

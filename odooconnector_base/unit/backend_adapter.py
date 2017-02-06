@@ -112,7 +112,6 @@ class OdooAdapter(OdooAdapterGeneric):
     _model_name = ['odooconnector.res.partner',
                    'odooconnector.res.users',
                    'odooconnector.product.product',
-                   'odooconnector.crm.lead',
                    'odooconnector.product.uom',
                    'odooconnector.product.supplierinfo',
                    'pricelist.partnerinfo',
