@@ -558,7 +558,7 @@ class SaleOrderExportMapper(ExportMapper):
         if pricelist_id:
             return {'pricelist_id': pricelist_id}
 
-    #section_id is team_id  in v10
+    # section_id is team_id  in v10
     @mapping
     def team_id(self, record):
         binder = self.binder_for('odooconnector.crm.case.section')

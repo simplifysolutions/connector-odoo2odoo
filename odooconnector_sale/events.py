@@ -26,8 +26,10 @@ def create_default_binding(session, model_name, record_id, fields=None):
         session, model_name, record_id, fields=fields)
 
 
-@events.on_record_write(
-    model_names=['sale.order', 'sale.order.line', 'account.tax', 'crm.case.section'])
+@events.on_record_write(model_names=['sale.order',
+                                     'sale.order.line',
+                                     'account.tax',
+                                     'crm.case.section'])
 def update_sale_order(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return

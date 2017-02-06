@@ -125,10 +125,10 @@ class CrmCaseSectionExporterMapper(ExportMapper):
         return {'member_ids': [(6, False, member_ids)]}
 
     @mapping
-    def user_id(self,record):
+    def user_id(self, record):
         if not record.user_id:
             return
         binder = self.binder_for('odooconnector.res.users')
         user_id = binder.to_backend(record.user_id.id, wrap=True)
         if user_id:
-            return {'user_id':user_id}
+            return {'user_id': user_id}

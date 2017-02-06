@@ -13,7 +13,6 @@
                             <group>
                                 <field name="default_import_so_domain"/>
                                 <field name="import_so_since"/>
-
                                 <button name="import_so"
                                         type="object"
                                         string="Import Sale order" />
@@ -36,9 +35,6 @@
                                 <button name="export_so"
                                         type="object"
                                         string="Export Sale order" />
-                                 <button name="export_so_line"
-                                        type="object"
-                                        string="Export Sale order Line" />
                             </group>
                             <group>
                                 <field name="default_export_account_tax"/>
