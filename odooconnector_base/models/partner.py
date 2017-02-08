@@ -80,7 +80,6 @@ class PartnerImportMapper(OdooImportMapper):
 
     @mapping
     def state_id(self, record):
-
         if not record.get('state_id'):
             return
         state = self.env['res.country.state'].search(
@@ -104,11 +103,11 @@ class PartnerImportMapper(OdooImportMapper):
 
     @mapping
     def property_pricelist_id(self, record):
-        if not record.get('property_pricelist_id'):
+        if not record.get('property_product_pricelist'):
             return
         binder = self.binder_for('odooconnector.product.pricelist')
         pricelist_id = binder.to_openerp(
-            record['property_pricelist_id'][0], wrap=True)
+            record['property_product_pricelist'][0], unwrap=True)
         if pricelist_id:
             return {'property_product_pricelist': pricelist_id}
 
@@ -116,9 +115,17 @@ class PartnerImportMapper(OdooImportMapper):
     def parent_id(self, record):
         if record.get('parent_id'):
             binder = self.binder_for('odooconnector.res.partner')
-            parent_id = binder.to_openerp(record['parent_id'][0], wrap=True)
+            parent_id = binder.to_openerp(record['parent_id'][0], unwrap=True)
             if parent_id:
                 return {'parent_id': parent_id}
+
+    @mapping
+    def user_id(self, record):
+        if record.get('user_id'):
+            binder = self.binder_for('odooconnector.res.users')
+            user_id = binder.to_openerp(record['user_id'][0], unwrap=True)
+            if user_id:
+                return {'user_id': user_id}
 
 
 @oc_odoo
@@ -182,6 +189,16 @@ class PartnerExportMapper(ExportMapper):
                 record.parent_id.id, wrap=True)
             if parent_id:
                 return {'parent_id': parent_id}
+
+    @mapping
+    def user_id(self, record):
+        if not record.user_id:
+            return
+        binder = self.binder_for('odooconnector.res.users')
+        user_id = binder.to_backend(
+            record.user_id.id, wrap=True)
+        if user_id:
+            return {'user_id': user_id}
 
     @mapping
     def payment_term_id(self, record):
