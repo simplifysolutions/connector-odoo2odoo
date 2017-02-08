@@ -68,7 +68,7 @@ class AccountTaxImporterMapper(OdooImportMapper):
     def parent_id(self, record):
         if record.get('parent_id'):
             binder = self.binder_for('odooconnector.account.tax')
-            parent_id = binder.to_openerp(record['parent_id'][0], wrap=True)
+            parent_id = binder.to_openerp(record['parent_id'][0], unwrap=True)
             if parent_id:
                 return {'parent_id': parent_id}
 
