@@ -4,4 +4,5 @@
 from . import sale
 from . import sales_team
 from . import account_tax
+from . import res_partner
 from . import odooconnector
