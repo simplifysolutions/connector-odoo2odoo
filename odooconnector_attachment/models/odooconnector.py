@@ -18,7 +18,7 @@ class OdooBackend(models.Model):
     )
 
     @api.multi
-    def export_attachements(self):
+    def export_attachments(self):
         """ Export attachements to external system """
         self._export_records('ir.attachment')
         return True
