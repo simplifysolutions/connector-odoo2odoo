@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_odooconnector_crm_lead,access_odooconnector_crm_lead,model_odooconnector_crm_lead,odooconnector_base.group_oc_user,1,1,1,0
 access_odooconnector_crm_lead_mgr,access_odooconnector_crm_lead_mgr,model_odooconnector_crm_lead,odooconnector_base.group_oc_manager,1,1,1,1
+access_odooconnector_crm_lead_grp,access_odooconnector_crm_lead_grp,model_odooconnector_crm_lead,base.group_sale_salesman,1,1,1,0
