@@ -68,7 +68,7 @@ class ProductPricelistImportMapper(OdooImportMapper):
     _model_name = ['odooconnector.product.pricelist']
     _map_child_class = OdooImportMapChild
 
-    direct = [('name', 'name'),
+    direct = [('name', 'name'), ('active', 'active')
               ]
 
     children = [
@@ -181,7 +181,7 @@ class ProductPricelistExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.pricelist']
     _map_child_class = OdooExportMapChild
 
-    direct = [('name', 'name'),
+    direct = [('name', 'name'), ('active', 'active')
               ]
 
     children = [

@@ -55,6 +55,7 @@ class ResUsersImporterMapper(OdooImportMapper):
         ('name', 'name'), ('login', 'login'),
         ('password', 'password'), ('password_crypt', 'password_crypt'),
         ('signature', 'signature'), ('notify_email', 'notify_email'),
+        ('active', 'active')
     ]
 
 

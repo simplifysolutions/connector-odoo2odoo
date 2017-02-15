@@ -142,9 +142,12 @@ def update_records(session, model_name, record_id, fields=None):
 
 
 def sync_object(session, model_name, record_id, fields=None):
+    domain = []
     if session.context.get('connector_no_export'):
         return
-    obj = session.env[model_name].search([('id', '=', record_id)])
+    if session.context.get('domain'):
+        domain = session.context.get('domain')
+    obj = session.env[model_name].search(domain + [('id', '=', record_id)])
     if obj:
         _logger.debug('Sync record')
         export_record.delay(session, model_name, obj.backend_id.id, record_id)
