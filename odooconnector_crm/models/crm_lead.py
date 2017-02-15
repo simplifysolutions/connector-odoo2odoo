@@ -78,7 +78,7 @@ class CrmLeadImportMapper(OdooImportMapper):
               ('date_action', 'date_action'),
               ('title_action', 'title_action'), ('opt_out', 'opt_out'),
               ('referred', 'referred'), ('description', 'description'),
-              ('priority', 'priority'),
+              ('active', 'active')
               ]
 
     @mapping
@@ -194,6 +194,7 @@ class CrmLeadExportMapper(ExportMapper):
               ('date_action', 'date_action'),
               ('title_action', 'title_action'), ('opt_out', 'opt_out'),
               ('referred', 'referred'), ('description', 'description'),
+              ('active', 'active')
               ]
 
     @mapping
