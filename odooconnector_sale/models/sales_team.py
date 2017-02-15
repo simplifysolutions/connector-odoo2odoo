@@ -56,7 +56,8 @@ class CrmCaseSectionImporterMapper(OdooImportMapper):
         ('name', 'name'), ('use_quotations', 'use_quotations'),
         ('use_leads', 'use_leads'), ('use_opportunities', 'use_opportunities'),
         ('invoiced_target', 'invoiced_target'), ('alias_name', 'alias_name'),
-        ('alias_contact', 'alias_contact'), ('color', 'color')
+        ('alias_contact', 'alias_contact'), ('color', 'color'),
+        ('active', 'active')
     ]
 
 
@@ -110,7 +111,8 @@ class CrmCaseSectionExporterMapper(ExportMapper):
         ('name', 'name'), ('use_quotations', 'use_quotations'),
         ('use_leads', 'use_leads'), ('use_opportunities', 'use_opportunities'),
         ('invoiced_target', 'invoiced_target'), ('alias_name', 'alias_name'),
-        ('alias_contact', 'alias_contact'), ('color', 'color')
+        ('alias_contact', 'alias_contact'), ('color', 'color'),
+        ('active', 'active')
     ]
 
     @mapping

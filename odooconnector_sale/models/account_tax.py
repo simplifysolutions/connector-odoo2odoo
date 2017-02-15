@@ -52,15 +52,28 @@ class AccountTaxImporterMapper(OdooImportMapper):
     _model_name = ['odooconnector.account.tax']
 
     direct = [
-        ('name', 'name'), ('description', 'description'), ('type', 'type'),
+        ('name', 'name'), ('description', 'description'),
+        ('active', 'active')
     ]
+
+    @mapping
+    def type(self, record):
+        type = 'percent'
+        if not record.get('amount_type'):
+            return
+        if record.get('amount_type') == 'group':
+            return {'type': type, 'child_depend': True}
+        elif record.get('amount_type') == 'division':
+            return {'type': type, 'price_include': True}
+        else:
+            return {'type': record.get('amount_type')}
 
     @mapping
     def amount(self, record):
         if not record.get('amount'):
             return
         amount = record.get('amount')
-        if record.get('type') == "percent":
+        if record.get('amount_type') == "percent":
             amount = amount / 100
         return {'amount': amount}
 
@@ -115,7 +128,7 @@ class AccountTaxExporterMapper(ExportMapper):
     _model_name = ['odooconnector.account.tax']
 
     direct = [
-        ('name', 'name'), ('description', 'description'),
+        ('name', 'name'), ('description', 'description'), ('active', 'active')
     ]
 
     @mapping
@@ -135,16 +148,6 @@ class AccountTaxExporterMapper(ExportMapper):
         if tax.type == "percent":
             amount = amount * 100
         return {'amount': amount}
-
-#    @mapping
-#    def parent_id(self, record):
-#        if record.parent_id:
-#            binder = self.binder_for('odooconnector.account.tax')
-#            parent_id = binder.to_backend(
-#                record.parent_id.id, wrap=True)
-#            print"parent_idparent_idparent_id", parent_id
-#            if parent_id:
-#                return {'parent_id': parent_id}
 
     @mapping
     def children_tax_ids(self, record):
