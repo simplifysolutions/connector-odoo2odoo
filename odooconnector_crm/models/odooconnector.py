@@ -8,6 +8,8 @@ from openerp.tools.safe_eval import safe_eval
 from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.odooconnector_base.unit.import_synchronizer import import_batch
 
+domain = {'domain': ['|', ('active', '=', True), ('active', '=', False)]}
+
 
 class OdooBackend(models.Model):
 
@@ -43,9 +45,9 @@ class OdooBackend(models.Model):
             filters = backend.import_lead_domain_filter
             if filters and isinstance(filters, (str, unicode)):
                 filters = safe_eval(filters)
-            domain = [('write_date', '>=', backend.import_leads_since)]
+            crm_domain = [('write_date', '>=', backend.import_leads_since)]
             import_batch(session, 'odooconnector.crm.lead', backend.id,
-                         filters + domain)
+                         filters + crm_domain)
             backend.write({'import_leads_since': datetime.datetime.now()})
 
         return True
@@ -57,5 +59,5 @@ class OdooBackend(models.Model):
     @api.multi
     def export_leads(self):
         """ Export Leads to external system """
-        self._export_records('crm.lead')
+        self.with_context(domain)._export_records('crm.lead')
         return True
