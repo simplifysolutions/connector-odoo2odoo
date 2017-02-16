@@ -616,7 +616,7 @@ class SaleOrderExportMapper(ExportMapper):
         return {'state': state}
 
     @mapping
-    def tag_ids(self,record):
+    def tag_ids(self, record):
         if not record.categ_ids:
             return
         tag_ids = []
@@ -631,7 +631,6 @@ class SaleOrderExportMapper(ExportMapper):
                 tag_id = tag_id[0]
             tag_ids.append(tag_id)
         return {'tag_ids': [(6, 0, tag_ids)]}
-
 
 
 @oc_odoo

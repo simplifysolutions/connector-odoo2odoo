@@ -64,7 +64,7 @@ class PartnerImportMapper(OdooImportMapper):
               ('comment', 'comment'), ('supplier', 'supplier'),
               ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
               ('date', 'date'), ('notify_email', 'notify_email'),
-              ('type', 'type')]
+              ('type', 'type'), ('active', 'active')]
 
     @mapping
     def country_id(self, record):
@@ -171,7 +171,7 @@ class PartnerExportMapper(ExportMapper):
               ('comment', 'comment'), ('supplier', 'supplier'),
               ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
               ('date', 'date'), ('notify_email', 'notify_email'),
-              ('type', 'type')]
+              ('type', 'type'), ('active', 'active')]
 
     @mapping
     def property_pricelist_id(self, record):

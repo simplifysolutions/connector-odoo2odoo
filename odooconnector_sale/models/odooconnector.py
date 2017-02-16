@@ -8,6 +8,8 @@ from openerp.tools.safe_eval import safe_eval
 from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.odooconnector_base.unit.import_synchronizer import import_batch
 
+domain = {'domain': ['|', ('active', '=', True), ('active', '=', False)]}
+
 
 class OdooBackend(models.Model):
 
@@ -70,7 +72,7 @@ class OdooBackend(models.Model):
     @api.multi
     def export_sales_team(self):
         """ Export sale orders to external system """
-        self._export_records('crm.case.section')
+        self.with_context(domain)._export_records('crm.case.section')
         return True
 
     @api.multi
@@ -82,5 +84,5 @@ class OdooBackend(models.Model):
     @api.multi
     def export_taxes(self):
         """ Export sale orders taxes to external system """
-        self._export_records('account.tax')
+        self.with_context(domain)._export_records('account.tax')
         return True

@@ -63,7 +63,7 @@ class ProductImportMapper(OdooImportMapper):
               ('type', 'type'),
               # ('purchase_ok', 'purchase_ok'),
               ('sale_ok', 'sale_ok'),
-              ('lst_price', 'list_price'),
+              ('lst_price', 'list_price'), ('active', 'active'),
               ('standard_price', 'standard_price'),
               ('ean13', 'barcode'), ('default_code', 'default_code'),
               ('description', 'description')]
@@ -180,7 +180,7 @@ class ProductExportMapper(ExportMapper):
     direct = [('name', 'name'),
               # ('name_template', 'name_template'),
               ('sale_ok', 'sale_ok'),
-              ('lst_price', 'lst_price'),
+              ('lst_price', 'lst_price'), ('active', 'active'),
               ('standard_price', 'standard_price'),
               ('ean13', 'barcode'),
               ('default_code', 'default_code'),
