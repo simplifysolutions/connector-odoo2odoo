@@ -117,9 +117,10 @@ def update_product(session, model_name, record_id, fields=None):
             sync_object(session, ic_model_name, binding.id, fields)
 
 
-@on_record_write(model_names=[
-    'res.partner', 'res.users',
-    'product.uom', 'product.pricelist.item'])
+@on_record_write(model_names=['res.partner',
+                              'res.users',
+                              'product.uom',
+                              'product.pricelist.item'])
 def update_records(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return

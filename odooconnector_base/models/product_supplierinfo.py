@@ -55,9 +55,12 @@ class ProductSupplierInfoImportMapper(OdooImportMapper):
 
     _map_child_class = OdooImportMapChild
 
-    direct = [('sequence', 'sequence'), ('product_name', 'product_name'),
-              ('product_code', 'product_code'), ('min_qty', 'min_qty'),
-              ('delay', 'delay')]
+    direct = [('sequence', 'sequence'),
+              ('product_name', 'product_name'),
+              ('product_code', 'product_code'),
+              ('min_qty', 'min_qty'),
+              ('delay', 'delay'),
+              ]
 
     children = [
         ('pricelist_ids', 'pricelist_ids', 'pricelist.partnerinfo')
@@ -114,9 +117,12 @@ class ProductSupplierinfoExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.supplierinfo']
     _map_child_class = OdooExportMapChild
 
-    direct = [('sequence', 'sequence'), ('product_name', 'product_name'),
-              ('product_code', 'product_code'), ('min_qty', 'min_qty'),
-              ('delay', 'delay')]
+    direct = [('sequence', 'sequence'),
+              ('product_name', 'product_name'),
+              ('product_code', 'product_code'),
+              ('min_qty', 'min_qty'),
+              ('delay', 'delay'),
+              ]
 
     children = [
         ('pricelist_ids', 'pricelist_ids', 'pricelist.partnerinfo')
