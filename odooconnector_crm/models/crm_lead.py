@@ -66,18 +66,25 @@ class CrmLeadImporter(OdooImporter):
 class CrmLeadImportMapper(OdooImportMapper):
     _model_name = 'odooconnector.crm.lead'
 
-    direct = [('name', 'name'), ('partner_name', 'partner_name'),
-              ('contact_name', 'contact_name'), ('street', 'street'),
-              ('street2', 'street2'), ('city', 'city'),
-              ('zip', 'zip'), ('phone', 'phone'),
-              ('mobile', 'mobile'), ('fax', 'fax'),
+    direct = [('name', 'name'),
+              ('partner_name', 'partner_name'),
+              ('contact_name', 'contact_name'),
+              ('street', 'street'),
+              ('street2', 'street2'),
+              ('city', 'city'),
+              ('zip', 'zip'),
+              ('phone', 'phone'),
+              ('mobile', 'mobile'),
+              ('fax', 'fax'),
               ('email_from', 'email_from'),
               ('probability', 'probability'),
               ('planned_revenue', 'planned_revenue'),
               ('date_deadline', 'date_deadline'),
               ('date_action', 'date_action'),
-              ('title_action', 'title_action'), ('opt_out', 'opt_out'),
-              ('referred', 'referred'), ('description', 'description'),
+              ('title_action', 'title_action'),
+              ('opt_out', 'opt_out'),
+              ('referred', 'referred'),
+              ('description', 'description'),
               ('active', 'active')
               ]
 
@@ -182,18 +189,25 @@ class CrmLeadExporter(OdooExporter):
 class CrmLeadExportMapper(ExportMapper):
     _model_name = 'odooconnector.crm.lead'
 
-    direct = [('name', 'name'), ('partner_name', 'partner_name'),
-              ('contact_name', 'contact_name'), ('street', 'street'),
-              ('street2', 'street2'), ('city', 'city'),
-              ('zip', 'zip'), ('phone', 'phone'),
-              ('mobile', 'mobile'), ('fax', 'fax'),
+    direct = [('name', 'name'),
+              ('partner_name', 'partner_name'),
+              ('contact_name', 'contact_name'),
+              ('street', 'street'),
+              ('street2', 'street2'),
+              ('city', 'city'),
+              ('zip', 'zip'),
+              ('phone', 'phone'),
+              ('mobile', 'mobile'),
+              ('fax', 'fax'),
               ('email_from', 'email_from'),
               ('probability', 'probability'),
               ('planned_revenue', 'planned_revenue'),
               ('date_deadline', 'date_deadline'),
               ('date_action', 'date_action'),
-              ('title_action', 'title_action'), ('opt_out', 'opt_out'),
-              ('referred', 'referred'), ('description', 'description'),
+              ('title_action', 'title_action'),
+              ('opt_out', 'opt_out'),
+              ('referred', 'referred'),
+              ('description', 'description'),
               ('active', 'active')
               ]
 

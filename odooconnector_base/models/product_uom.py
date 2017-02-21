@@ -59,8 +59,10 @@ class ProductUomTranslationImporter(TranslationImporter):
 class ProductUomImportMapper(OdooImportMapper):
     _model_name = ['odooconnector.product.uom']
 
-    direct = [('name', 'name'), ('active', 'active'),
-              ('uom_type', 'uom_type'), ('factor', 'factor'),
+    direct = [('name', 'name'),
+              ('active', 'active'),
+              ('uom_type', 'uom_type'),
+              ('factor', 'factor'),
               ('rounding', 'rounding'), ]
 
     @mapping
@@ -80,7 +82,7 @@ class ProductUomImportMapper(OdooImportMapper):
 class ProductUomSimpleImportMapper(OdooImportMapper):
     _model_name = ['odooconnector.product.uom']
 
-    direct = [('name', 'name')]
+    direct = [('name', 'name'), ]
 
 
 @oc_odoo
@@ -130,9 +132,12 @@ class ProductUomTranslationExporter(TranslationExporter):
 class ProductUomExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.uom']
 
-    direct = [('name', 'name'), ('active', 'active'),
-              ('uom_type', 'uom_type'), ('factor', 'factor'),
-              ('rounding', 'rounding'), ]
+    direct = [('name', 'name'),
+              ('active', 'active'),
+              ('uom_type', 'uom_type'),
+              ('factor', 'factor'),
+              ('rounding', 'rounding'),
+              ]
 
     @mapping
     def category_id(self, record):
