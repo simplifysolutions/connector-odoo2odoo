@@ -16,7 +16,6 @@ class PartnerImportMapperSalesTeam(PartnerImportMapper):
 
     @mapping
     def team_id(self, record):
-        print"team_idteam_idteam_id"
         if not record.get('team_id'):
             return
         binder = self.binder_for('odooconnector.crm.case.section')
