@@ -52,11 +52,16 @@ class AttachmentsImporterMapper(OdooImportMapper):
     _model_name = ['odooconnector.ir.attachment']
 
     direct = [
-        ('name', 'name'), ('type', 'type'), ('datas', 'datas'),
+        ('name', 'name'),
+        ('type', 'type'),
+        ('datas', 'datas'),
         ('datas_fname', 'datas_fname'),
-        ('res_model', 'res_model'), ('res_id', 'res_id'),
-        ('res_name', 'res_name'), ('description', 'description'),
-        ('create_date', 'create_date'), ('file_type', 'mimetype'),
+        ('res_model', 'res_model'),
+        ('res_id', 'res_id'),
+        ('res_name', 'res_name'),
+        ('description', 'description'),
+        ('create_date', 'create_date'),
+        ('file_type', 'mimetype'),
     ]
 
 
@@ -96,11 +101,16 @@ class AttachmentsExporterMapper(ExportMapper):
     _model_name = ['odooconnector.ir.attachment']
 
     direct = [
-        ('name', 'name'), ('type', 'type'), ('datas', 'datas'),
+        ('name', 'name'),
+        ('type', 'type'),
+        ('datas', 'datas'),
         ('datas_fname', 'datas_fname'),
-        ('res_model', 'res_model'), ('res_id', 'res_id'),
-        ('res_name', 'res_name'), ('description', 'description'),
-        ('create_date', 'create_date'), ('file_type', 'mimetype'),
+        ('res_model', 'res_model'),
+        ('res_id', 'res_id'),
+        ('res_name', 'res_name'),
+        ('description', 'description'),
+        ('create_date', 'create_date'),
+        ('file_type', 'mimetype'),
     ]
 
     @mapping
