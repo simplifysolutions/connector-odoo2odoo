@@ -155,9 +155,11 @@ class SaleOrderImportMapper(OdooImportMapper):
     _model_name = 'odooconnector.sale.order'
     _map_child_class = OdooImportMapSaleChild
 
-    direct = [('date_order', 'date_order'), ('origin', 'origin'),
-              ('client_order_ref', 'client_order_ref'), ('note', 'note'),
-              ('picking_policy', 'picking_policy')
+    direct = [('date_order', 'date_order'),
+              ('origin', 'origin'),
+              ('client_order_ref', 'client_order_ref'),
+              ('note', 'note'),
+              ('picking_policy', 'picking_policy'),
               ]
 
     children = [
@@ -375,7 +377,8 @@ class SaleOrderLineImportMapper(OdooImportMapper):
     _map_child_class = OdooImportMapChild
 
     direct = [
-        ('name', 'name'), ('price_unit', 'price_unit'),
+        ('name', 'name'),
+        ('price_unit', 'price_unit'),
         ('product_uom_qty', 'product_uom_qty'),
     ]
 
@@ -536,9 +539,11 @@ class SaleOrderExportMapper(ExportMapper):
     _map_child_class = OdooExportMapSaleChild
 
     direct = [
-        ('date_order', 'date_order'), ('origin', 'origin'),
-        ('client_order_ref', 'client_order_ref'), ('note', 'note'),
-        ('picking_policy', 'picking_policy')
+        ('date_order', 'date_order'),
+        ('origin', 'origin'),
+        ('client_order_ref', 'client_order_ref'),
+        ('note', 'note'),
+        ('picking_policy', 'picking_policy'),
     ]
 
 #    children = [
@@ -638,7 +643,8 @@ class SaleOrderLineExportMapper(ExportMapper):
     _model_name = ['odooconnector.sale.order.line']
 
     direct = [
-        ('name', 'name'), ('price_unit', 'price_unit'),
+        ('name', 'name'),
+        ('price_unit', 'price_unit'),
         ('product_uom_qty', 'product_uom_qty'),
     ]
 
