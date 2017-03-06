@@ -12,6 +12,8 @@ from openerp.addons.odooconnector_base.unit.mapper import OdooImportMapper
 from openerp.addons.odooconnector_base.unit.export_synchronizer import (
     OdooExporter)
 
+user_domain = ['|', ('active', '=', True), ('active', '=', False)]
+
 
 class OdooConnectorResUsers(models.Model):
     _name = 'odooconnector.res.users'
@@ -52,10 +54,12 @@ class ResUsersImporterMapper(OdooImportMapper):
     _model_name = ['odooconnector.res.users']
 
     direct = [
-        ('name', 'name'), ('login', 'login'),
-        ('password', 'password'), ('password_crypt', 'password_crypt'),
-        ('signature', 'signature'), ('notify_email', 'notify_email'),
-        ('active', 'active')
+        ('name', 'name'),
+        ('login', 'login'),
+        ('password_crypt', 'password_crypt'),
+        ('signature', 'signature'),
+        ('notify_email', 'notify_email'),
+        ('active', 'active'),
     ]
 
 
@@ -70,7 +74,8 @@ class ResUsersExporter(OdooExporter):
         if not record.external_id:
             adapter = self.unit_for(OdooAdapter)
             user_id = adapter.search([('name', '=', record.name),
-                                      ('login', '=', record.login)],
+                                      ('login', '=', record.login)] +
+                                     user_domain,
                                      model_name='res.users')
             if user_id:
                 record.write({'external_id': user_id[0]})
@@ -102,11 +107,12 @@ class ResUsersExporterMapper(ExportMapper):
     _model_name = ['odooconnector.res.users']
 
     direct = [
-        ('name', 'name'), ('login', 'login'),
-        #        ('password','password'),
+        ('name', 'name'),
+        ('login', 'login'),
         ('password_crypt', 'password_crypt'),
-        ('signature', 'signature'), ('notify_email', 'notify_email'),
-        ('active', 'active')
+        ('signature', 'signature'),
+        ('notify_email', 'notify_email'),
+        ('active', 'active'),
     ]
 
     @mapping

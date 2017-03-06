@@ -57,14 +57,27 @@ class PartnerImporter(OdooImporter):
 class PartnerImportMapper(OdooImportMapper):
     _model_name = 'odooconnector.res.partner'
 
-    direct = [('name', 'name'), ('is_company', 'is_company'),
-              ('street', 'street'), ('street2', 'street2'), ('city', 'city'),
-              ('zip', 'zip'), ('website', 'website'), ('phone', 'phone'),
-              ('mobile', 'mobile'), ('fax', 'fax'), ('email', 'email'),
-              ('comment', 'comment'), ('supplier', 'supplier'),
-              ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
-              ('date', 'date'), ('notify_email', 'notify_email'),
-              ('type', 'type'), ('active', 'active')]
+    direct = [('name', 'name'),
+              ('is_company', 'is_company'),
+              ('street', 'street'),
+              ('street2', 'street2'),
+              ('city', 'city'),
+              ('zip', 'zip'),
+              ('website', 'website'),
+              ('phone', 'phone'),
+              ('mobile', 'mobile'),
+              ('fax', 'fax'),
+              ('email', 'email'),
+              ('comment', 'comment'),
+              ('supplier', 'supplier'),
+              ('customer', 'customer'),
+              ('ref', 'ref'),
+              ('lang', 'lang'),
+              ('date', 'date'),
+              ('notify_email', 'notify_email'),
+              ('type', 'type'),
+              ('active', 'active'),
+              ]
 
     @mapping
     def country_id(self, record):
@@ -146,7 +159,7 @@ class PartnerExporter(OdooExporter):
         # create a ic_binding in the backend, indicating that the partner
         # was exported
         if record_created:
-            binding=self.env[self._model_name].browse(self.binding_id)
+            binding = self.env[self._model_name].browse(self.binding_id)
             record_id = self.binder.unwrap_binding(self.binding_id)
             data = {
                 'backend_id': self.backend_record.export_backend_id,
@@ -160,28 +173,45 @@ class PartnerExporter(OdooExporter):
                 context={'connector_no_export': True}
             )
             if binding.openerp_id.child_ids:
-                child_ids=[]
+                child_ids = []
                 adapter = self.unit_for(OdooAdapter)
                 for child in binding.openerp_id.child_ids:
                     binder = self.binder_for('odooconnector.res.partner')
                     child_id = binder.to_backend(child.id, wrap=True)
                     if child_id:
                         child_ids.append(child_id)
-                adapter.write(object_id=child_ids,data={'parent_id':self.external_id},model_name='res.partner')
+                adapter.write(
+                    object_id=child_ids,
+                    data={
+                        'parent_id': self.external_id},
+                    model_name='res.partner')
 
 
 @oc_odoo
 class PartnerExportMapper(ExportMapper):
     _model_name = 'odooconnector.res.partner'
 
-    direct = [('name', 'name'), ('is_company', 'is_company'),
-              ('street', 'street'), ('street2', 'street2'), ('city', 'city'),
-              ('zip', 'zip'), ('website', 'website'), ('phone', 'phone'),
-              ('mobile', 'mobile'), ('fax', 'fax'), ('email', 'email'),
-              ('comment', 'comment'), ('supplier', 'supplier'),
-              ('customer', 'customer'), ('ref', 'ref'), ('lang', 'lang'),
-              ('date', 'date'), ('notify_email', 'notify_email'),
-              ('type', 'type'), ('active', 'active')]
+    direct = [('name', 'name'),
+              ('is_company', 'is_company'),
+              ('street', 'street'),
+              ('street2', 'street2'),
+              ('city', 'city'),
+              ('zip', 'zip'),
+              ('website', 'website'),
+              ('phone', 'phone'),
+              ('mobile', 'mobile'),
+              ('fax', 'fax'),
+              ('email', 'email'),
+              ('comment', 'comment'),
+              ('supplier', 'supplier'),
+              ('customer', 'customer'),
+              ('ref', 'ref'),
+              ('lang', 'lang'),
+              ('date', 'date'),
+              ('notify_email', 'notify_email'),
+              ('type', 'type'),
+              ('active', 'active'),
+              ]
 
     @mapping
     def property_pricelist_id(self, record):

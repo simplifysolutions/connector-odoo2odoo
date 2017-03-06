@@ -88,8 +88,10 @@ class ProductPricelistVersionImportMapper(OdooImportMapper):
 class ProductPricelistItemImportMapper(ImportMapper):
     _model_name = ['product.pricelist.item']
 
-    direct = [('name', 'name'), ('min_quantity', 'min_quantity'),
-              ('sequence', 'sequence')]
+    direct = [('name', 'name'),
+              ('min_quantity', 'min_quantity'),
+              ('sequence', 'sequence'),
+              ]
 
 
 @oc_odoo
@@ -97,8 +99,9 @@ class ProductPricelistVersionExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.pricelist.version']
     _map_child_class = OdooExportMapChild
 
-    direct = [('name', 'name'), ('date_start', 'date_start'),
-              ('date_end', 'date_end')
+    direct = [('name', 'name'),
+              ('date_start', 'date_start'),
+              ('date_end', 'date_end'),
               ]
 
 
@@ -110,7 +113,7 @@ class ProductPricelistItemTranslationExporter(TranslationExporter):
 @oc_odoo
 class ProductPricelistItemTranslationExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.pricelist']
-    direct = [('name', 'name')]
+    direct = [('name', 'name'), ]
 
 
 @oc_odoo

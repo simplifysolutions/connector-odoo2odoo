@@ -52,8 +52,9 @@ class AccountTaxImporterMapper(OdooImportMapper):
     _model_name = ['odooconnector.account.tax']
 
     direct = [
-        ('name', 'name'), ('description', 'description'),
-        ('active', 'active')
+        ('name', 'name'),
+        ('description', 'description'),
+        ('active', 'active'),
     ]
 
     @mapping
@@ -128,7 +129,9 @@ class AccountTaxExporterMapper(ExportMapper):
     _model_name = ['odooconnector.account.tax']
 
     direct = [
-        ('name', 'name'), ('description', 'description'), ('active', 'active')
+        ('name', 'name'),
+        ('description', 'description'),
+        ('active', 'active'),
     ]
 
     @mapping

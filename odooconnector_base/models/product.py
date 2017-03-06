@@ -63,10 +63,13 @@ class ProductImportMapper(OdooImportMapper):
               ('type', 'type'),
               # ('purchase_ok', 'purchase_ok'),
               ('sale_ok', 'sale_ok'),
-              ('lst_price', 'list_price'), ('active', 'active'),
+              ('lst_price', 'list_price'),
+              ('active', 'active'),
               ('standard_price', 'standard_price'),
-              ('ean13', 'barcode'), ('default_code', 'default_code'),
-              ('description', 'description')]
+              ('ean13', 'barcode'),
+              ('default_code', 'default_code'),
+              ('description', 'description'),
+              ]
 
     children = [
         # ('seller_ids', 'seller_ids', 'odooconnector.product.supplierinfo'),
@@ -129,7 +132,8 @@ class ProductSimpleImportMapper(OdooImportMapper):
 
     direct = [('name', 'name'),
               # ('name_template', 'name_template'),
-              ('description', 'description')]
+              ('description', 'description'),
+              ]
 
 
 @oc_odoo
@@ -180,11 +184,12 @@ class ProductExportMapper(ExportMapper):
     direct = [('name', 'name'),
               # ('name_template', 'name_template'),
               ('sale_ok', 'sale_ok'),
-              ('lst_price', 'lst_price'), ('active', 'active'),
+              ('lst_price', 'lst_price'),
+              ('active', 'active'),
               ('standard_price', 'standard_price'),
               ('ean13', 'barcode'),
               ('default_code', 'default_code'),
-              ('description', 'description')
+              ('description', 'description'),
               ]
 
     children = [
@@ -237,8 +242,10 @@ class ProductTranslationExporter(TranslationExporter):
 @oc_odoo
 class ProductTranslationExportMapper(ExportMapper):
     _model_name = ['odooconnector.product.product']
-    direct = [('name', 'name'), ('name_template', 'name_template'),
-              ('description', 'description')]
+    direct = [('name', 'name'),
+              ('name_template', 'name_template'),
+              ('description', 'description'),
+              ]
 
 
 @oc_odoo
