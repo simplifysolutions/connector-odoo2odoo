@@ -85,7 +85,8 @@ class CrmLeadImportMapper(OdooImportMapper):
               ('opt_out', 'opt_out'),
               ('referred', 'referred'),
               ('description', 'description'),
-              ('active', 'active')
+              ('active', 'active'),
+              ('store_no', 'store_no'),
               ]
 
     @mapping
@@ -208,7 +209,8 @@ class CrmLeadExportMapper(ExportMapper):
               ('opt_out', 'opt_out'),
               ('referred', 'referred'),
               ('description', 'description'),
-              ('active', 'active')
+              ('active', 'active'),
+              ('store_no', 'store_no'),
               ]
 
     @mapping
