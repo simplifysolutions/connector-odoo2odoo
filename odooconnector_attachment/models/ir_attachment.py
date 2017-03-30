@@ -129,3 +129,11 @@ class AttachmentsExporterMapper(ExportMapper):
                 record.sales_team_id.id, wrap=True)
             if sales_team_id:
                 return {'sales_team_id': sales_team_id}
+
+    @mapping
+    def sales_person(self, record):
+        if record.sales_person:
+            binder = self.binder_for('odooconnector.res.users')
+            sales_person_id = binder.to_backend(record.sales_person.id, wrap=True)
+            if sales_person_id:
+                return {'sales_person': sales_person_id}
