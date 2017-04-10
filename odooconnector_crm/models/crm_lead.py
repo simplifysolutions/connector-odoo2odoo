@@ -87,6 +87,7 @@ class CrmLeadImportMapper(OdooImportMapper):
               ('description', 'description'),
               ('active', 'active'),
               ('store_no', 'store_no'),
+              ('case_no', 'case_no'),
               ]
 
     @mapping
@@ -211,6 +212,7 @@ class CrmLeadExportMapper(ExportMapper):
               ('description', 'description'),
               ('active', 'active'),
               ('store_no', 'store_no'),
+              ('case_no', 'case_no'),
               ]
 
     @mapping
