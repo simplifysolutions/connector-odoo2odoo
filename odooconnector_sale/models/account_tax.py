@@ -101,9 +101,9 @@ class AccountTaxExporter(OdooExporter):
                                     model_name='account.tax')
             if tax_id:
                 record.write({'external_id': tax_id[0]})
-        if not self.backend_record.default_export_product_uom:
+        if not self.backend_record.default_export_account_tax:
             return False
-        domain = self.backend_record.default_export_product_uom_domain
+        domain = self.backend_record.default_export_account_tax_domain
         return self._pre_export_domain_check(record, domain)
 
     def _after_export(self, record_created):

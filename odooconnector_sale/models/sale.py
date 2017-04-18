@@ -456,7 +456,7 @@ class SaleOrderExporter(OdooExporter):
                 record.partner_shipping_id.id, wrap=True)
             if not partner_shipping_id:
                 return False
-        if not self.backend_record.default_export_so_domain:
+        if not self.backend_record.default_export_sale_order:
             return False
         domain = self.backend_record.default_export_so_domain
         return self._pre_export_domain_check(record, domain)
@@ -510,10 +510,8 @@ class SaleOrderLineExporter(OdooExporter):
                 record.order_id.id, wrap=True)
             if not order_id:
                 return False
-        if not self.backend_record.default_export_product_uom:
+        if not self.backend_record.default_export_sale_order:
             return False
-        domain = self.backend_record.default_export_product_uom_domain
-        return self._pre_export_domain_check(record, domain)
 
     def _after_export(self, record_created):
         # create a ic_binding in the backend, indicating that the order line
