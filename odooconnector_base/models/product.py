@@ -125,6 +125,16 @@ class ProductImportMapper(OdooImportMapper):
         if uom:
             return {'uom_po_id': uom.id}
 
+    @mapping
+    def categ_id(self, record):
+        if not record.get('categ_id'):
+            return
+        category = self.env['product.category'].search(
+            [('name', '=', record['categ_id'][1])],
+            limit=1
+        )
+        if category:
+            return {'categ_id': category.id}
 
 @oc_odoo
 class ProductSimpleImportMapper(OdooImportMapper):
@@ -229,6 +239,20 @@ class ProductExportMapper(ExportMapper):
         if product_uom:
             return product_uom
 
+    @mapping
+    def categ_id(self,record):
+        if not record.categ_id:
+            return
+
+        adapter = self.unit_for(OdooAdapter)
+        categ_id = adapter.search([('name', '=', record.categ_id.name)],
+                                     model_name='product.category')
+        if not categ_id:
+            categ_id = adapter.create({'name': record.categ_id.name},
+                                         model_name='product.category')
+        if isinstance(categ_id, list):
+            categ_id = categ_id[0]
+        return {'categ_id': categ_id}
 
 @oc_odoo
 class ProductTranslationExporter(TranslationExporter):
