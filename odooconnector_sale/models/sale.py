@@ -512,6 +512,7 @@ class SaleOrderLineExporter(OdooExporter):
                 return False
         if not self.backend_record.default_export_sale_order:
             return False
+        return True
 
     def _after_export(self, record_created):
         # create a ic_binding in the backend, indicating that the order line
