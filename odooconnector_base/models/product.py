@@ -61,7 +61,7 @@ class ProductImportMapper(OdooImportMapper):
     direct = [('name', 'name'),
               # ('name_template', 'name_template'),
               ('type', 'type'),
-              # ('purchase_ok', 'purchase_ok'),
+              ('purchase_ok', 'purchase_ok'),
               ('sale_ok', 'sale_ok'),
               ('lst_price', 'list_price'),
               ('active', 'active'),
@@ -194,6 +194,7 @@ class ProductExportMapper(ExportMapper):
     direct = [('name', 'name'),
               # ('name_template', 'name_template'),
               ('sale_ok', 'sale_ok'),
+              ('purchase_ok', 'purchase_ok'),
               ('lst_price', 'lst_price'),
               ('active', 'active'),
               ('standard_price', 'standard_price'),
@@ -253,6 +254,7 @@ class ProductExportMapper(ExportMapper):
         if isinstance(categ_id, list):
             categ_id = categ_id[0]
         return {'categ_id': categ_id}
+
 
 @oc_odoo
 class ProductTranslationExporter(TranslationExporter):
