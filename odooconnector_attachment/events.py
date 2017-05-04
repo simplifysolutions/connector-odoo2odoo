@@ -22,7 +22,7 @@ def create_default_binding(session, model_name, record_id, fields=None):
 
 
 @events.on_record_write(model_names=['ir.attachment'])
-def update_sale_order(session, model_name, record_id, fields=None):
+def update_attachment(session, model_name, record_id, fields=None):
     if session.context.get('connector_no_export'):
         return
     _logger.debug('Record write triggered for %s(%s)', model_name, record_id)

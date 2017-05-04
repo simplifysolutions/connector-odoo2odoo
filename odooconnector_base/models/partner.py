@@ -208,10 +208,13 @@ class PartnerExportMapper(ExportMapper):
               ('ref', 'ref'),
               ('lang', 'lang'),
               ('date', 'date'),
-              ('notify_email', 'notify_email'),
               ('type', 'type'),
               ('active', 'active'),
               ]
+
+    @mapping
+    def notify_email(self,record):
+        return{'notify_email':'none'}
 
     @mapping
     def property_pricelist_id(self, record):

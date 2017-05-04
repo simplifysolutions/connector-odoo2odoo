@@ -101,13 +101,9 @@ class AttachmentsExporterMapper(ExportMapper):
     _model_name = ['odooconnector.ir.attachment']
 
     direct = [
-        ('name', 'name'),
         ('type', 'type'),
         ('datas', 'datas'),
-        ('datas_fname', 'datas_fname'),
         ('res_model', 'res_model'),
-        ('res_id', 'res_id'),
-        ('res_name', 'res_name'),
         ('description', 'description'),
         ('create_date', 'create_date'),
         ('file_type', 'mimetype'),
@@ -134,6 +130,39 @@ class AttachmentsExporterMapper(ExportMapper):
     def sales_person(self, record):
         if record.sales_person:
             binder = self.binder_for('odooconnector.res.users')
-            sales_person_id = binder.to_backend(record.sales_person.id, wrap=True)
+            sales_person_id = binder.to_backend(
+                record.sales_person.id, wrap=True)
             if sales_person_id:
                 return {'sales_person': sales_person_id}
+
+    @mapping
+    def res_id(self, record):
+        res_id = record.res_id
+        if record.res_model == 'sale.order':
+            binder = self.binder_for('odooconnector.sale.order')
+            sale_id = binder.to_backend(
+                record.res_id, wrap=True)
+            if sale_id:
+                res_id = sale_id
+        return {'res_id': res_id}
+
+    @mapping
+    def name_values(self, record):
+        res_name = record.res_name
+        datas_fname = record.datas_fname
+        name = record.name
+        if record.res_model == 'sale.order':
+            binder = self.binder_for('odooconnector.sale.order')
+            sale_id = binder.to_backend(
+                record.res_id, wrap=True)
+            if sale_id:
+                adapter = self.unit_for(
+                    OdooAdapter, 'odooconnector.sale.order')
+                detail_record = adapter.read(sale_id)
+                so_name = detail_record[0].get('name')
+                res_name = datas_fname = name = so_name
+        return {
+            'res_name': res_name,
+            'datas_fname': datas_fname,
+            'name': name
+        }

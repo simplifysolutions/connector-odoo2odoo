@@ -18,6 +18,7 @@
         'base',
         'document',
         'odooconnector_base',
+        'odooconnector_sale',
     ],
     'data': [
         'security/ir.model.access.csv',
