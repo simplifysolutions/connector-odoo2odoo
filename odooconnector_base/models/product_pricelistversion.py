@@ -8,6 +8,7 @@ from openerp.addons.connector.unit.mapper import ImportMapper, ExportMapper
 from ..unit.import_synchronizer import (OdooImporter, DirectBatchImporter)
 from ..unit.export_synchronizer import (OdooExporter, TranslationExporter,
                                         AddCheckpoint)
+from ..unit.delete_synchronizer import (OdooDeleter)
 from ..unit.mapper import (OdooImportMapper, OdooImportMapChild,
                            OdooExportMapChild)
 from ..unit.backend_adapter import OdooAdapter
@@ -41,7 +42,7 @@ class OdooConnectorProductPricelistItem(models.Model):
         comodel_name='product.pricelist.item',
         string='Pricelist Version Items',
         required=True,
-        ondelete='restrict'
+        ondelete='cascade'
     )
 
 
@@ -183,3 +184,10 @@ class ProductPricelistItemExporter(OdooExporter):
                 model_name='odooconnector.product.pricelist.item',
                 context={'connector_no_export': True}
             )
+
+@oc_odoo
+class ProductPricelistItemDeleter(OdooDeleter):
+    _model_name = ['odooconnector.product.pricelist.item']
+
+    def _get_remote_model(self):
+        return 'product.pricelist.item'

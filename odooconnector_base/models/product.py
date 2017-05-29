@@ -9,6 +9,7 @@ from openerp.addons.connector.unit.mapper import (mapping, ExportMapper)
 from ..unit.import_synchronizer import (OdooImporter, DirectBatchImporter,
                                         TranslationImporter)
 from ..unit.export_synchronizer import (OdooExporter, TranslationExporter)
+from ..unit.delete_synchronizer import (OdooDeleter)
 from ..unit.mapper import (OdooImportMapper, OdooImportMapChild,
                            OdooExportMapChild)
 from ..unit.backend_adapter import OdooAdapter
@@ -29,7 +30,7 @@ class OdooConnectorProductTemplate(models.Model):
         comodel_name='product.product',
         string='Product',
         required=True,
-        ondelete='restrict'
+        ondelete='cascade'
     )
 
 
@@ -322,3 +323,11 @@ class ProductExporter(OdooExporter):
 #            relation = (record.openerp_id.uom_id)
 #            self._export_dependency(relation, 'odooconnector.product.uom',
 #                                exporter_class=ProductUomExporter)
+
+
+@oc_odoo
+class ProductDeleter(OdooDeleter):
+    _model_name = ['odooconnector.product.product']
+
+    def _get_remote_model(self):
+        return 'product.product'
