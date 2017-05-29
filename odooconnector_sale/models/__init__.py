@@ -1,6 +1,8 @@
-# -*- coding: utf-8 -*-
-# © 2015 Malte Jacobi (maljac @ github)
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# -*- encoding: utf-8 -*-
+# Copyright (C) 2004-Today Simplify Solutions. All Rights Reserved
+
 from . import sale
+from . import sales_team
 from . import account_tax
+from . import res_partner
 from . import odooconnector

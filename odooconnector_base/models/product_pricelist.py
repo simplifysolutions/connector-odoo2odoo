@@ -8,8 +8,7 @@ from openerp.addons.connector.unit.mapper import (mapping, ExportMapper)
 
 from ..unit.import_synchronizer import (OdooImporter, DirectBatchImporter,
                                         TranslationImporter)
-from ..unit.export_synchronizer import (OdooExporter, TranslationExporter,
-                                        AddCheckpoint)
+from ..unit.export_synchronizer import (OdooExporter, TranslationExporter)
 from ..unit.mapper import (OdooImportMapper, OdooImportMapChild,
                            OdooExportMapChild)
 from ..unit.backend_adapter import OdooAdapter
@@ -68,8 +67,10 @@ class ProductPricelistImportMapper(OdooImportMapper):
     _model_name = ['odooconnector.product.pricelist']
     _map_child_class = OdooImportMapChild
 
-    direct = [('name', 'name'),
-              ]
+    direct = [
+        ('name', 'name'),
+        ('active', 'active')
+    ]
 
     children = [
         # ('seller_ids', 'seller_ids', 'odooconnector.product.supplierinfo'),
@@ -182,11 +183,24 @@ class ProductPricelistExportMapper(ExportMapper):
     _map_child_class = OdooExportMapChild
 
     direct = [('name', 'name'),
+              ('active', 'active')
               ]
 
     children = [
-        ('version_item_ids', 'item_ids', 'odooconnector.product.pricelist.item')
+        ('version_item_ids', 'item_ids',
+         'odooconnector.product.pricelist.item')
     ]
+
+    @mapping
+    def currency_id(self, record):
+        if not record.currency_id:
+            return
+        adapter = self.unit_for(OdooAdapter)
+        currency_id = adapter.search([
+            ('name', '=', record.currency_id.name)],
+            model_name='res.currency')
+        if currency_id:
+            return {'currency_id': currency_id[0]}
 
 
 @oc_odoo
@@ -219,10 +233,6 @@ class ProductPricelistExporter(OdooExporter):
         """ Run some checks before exporting the record """
         if not self.backend_record.default_export_product_pricelist:
             return False
-        for each_item in record.version_item_ids:
-            if each_item.base==1 and round(each_item.price_discount,2)!=-1.00:
-                checkpoint = self.unit_for(AddCheckpoint)
-                checkpoint.run(record.id)
         domain = self.backend_record.default_export_product_pricelist_domain
         return self._pre_export_domain_check(record, domain)
 

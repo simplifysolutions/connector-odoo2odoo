@@ -11,7 +11,7 @@
                 <xpath expr="/form/group" position="after">
                     <group groups="odooconnector_base.group_oc_manager">
                         <field name="oc_bind_ids">
-                            <tree string="Bindings" editable="bottom">
+                            <tree string="Bindings" editable="bottom" create="false">
                                 <field name="backend_id" />
                                 <field name="external_id" />
                             </tree>

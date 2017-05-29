@@ -24,7 +24,7 @@ class OdooAdapterGeneric(CRUDAdapter):
     def create(self, *args, **kwargs):
         raise NotImplementedError
 
-    def delete(self, *args, **kwargs):
+    def delete(self, id, **kwargs):
         raise NotImplementedError
 
     def read(self, id, **kwargs):
@@ -66,7 +66,6 @@ class OdooAdapterGeneric(CRUDAdapter):
                         in the connection context.
         :types context: dict
         """
-
         _logger.debug('Adapter method call: "{}" with data "{}"'.format(
                       method, data))
         _logger.debug('Adapter is using backend_record "%s:%s"',
@@ -89,8 +88,10 @@ class OdooAdapterGeneric(CRUDAdapter):
                 m = getattr(model_obj, method)
                 if fields:
                     result = m(object_id, data, fields=fields)
-                else:
+                elif data:
                     result = m(object_id, data)
+                else:
+                    result = m(object_id)
 
             _logger.debug('Backend call result: {}'.format(result))
 
@@ -110,13 +111,14 @@ class OdooAdapterGeneric(CRUDAdapter):
 class OdooAdapter(OdooAdapterGeneric):
 
     _model_name = ['odooconnector.res.partner',
+                   'odooconnector.res.users',
                    'odooconnector.product.product',
-                   'odooconnector.crm.lead',
                    'odooconnector.product.uom',
                    'odooconnector.product.supplierinfo',
                    'pricelist.partnerinfo',
                    'product.uom',
                    'odooconnector.product.pricelist',
+                   'odooconnector.product.pricelist.item',
                    ]
 
     def create(self, data, **kwargs):
@@ -124,8 +126,9 @@ class OdooAdapter(OdooAdapterGeneric):
         # context = kwargs.get('context', None)
         return self._call('create', data, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        return self._call('delete', 'somearg')
+    def delete(self, id,**kwargs):
+        # model_name = kwargs.get('model_name', None)
+        return self._call('unlink',id,**kwargs)
 
     def read(self, id, **kwargs):
         # model_name = kwargs.get('model_name', None)
@@ -137,7 +140,6 @@ class OdooAdapter(OdooAdapterGeneric):
         """ Search according filters and return list of ids """
         if not filters:
             filters = []
-
         # context = kwargs.get('context', None)
         # model_name = kwargs.get('model_name', None)
         result = self._call('search', filters, **kwargs)

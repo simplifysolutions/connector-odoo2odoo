@@ -9,6 +9,8 @@ from ..unit.export_synchronizer import export_batch
 
 from ..events import create_default_binding
 
+domain = {'domain': ['|', ('active', '=', True), ('active', '=', False)]}
+
 
 class OdooBinding(models.AbstractModel):
     """ Abstract Model for the Bindings.
@@ -92,10 +94,6 @@ class OdooBackend(models.Model):
         string='Partner domain filter',
     )
 
-    import_lead_domain_filter = fields.Char(
-        string='Partner domain filter',
-    )
-
     import_product_domain_filter = fields.Char(
         string='Product domain filter',
     )
@@ -126,6 +124,15 @@ class OdooBackend(models.Model):
         default='[]'
     )
 
+    default_export_res_users = fields.Boolean(
+        string='Export Users'
+    )
+
+    default_export_res_users_domain = fields.Char(
+        string='Export Users Domain',
+        default='[]'
+    )
+
     default_export_product = fields.Boolean(
         string='Export Products'
     )
@@ -135,12 +142,12 @@ class OdooBackend(models.Model):
         default='[]'
     )
 
-    default_export_lead = fields.Boolean(
-        string='Export Crm Leads'
+    default_export_product_uom = fields.Boolean(
+        string='Export Product UOMs'
     )
 
-    default_export_lead_domain = fields.Char(
-        string='Export Crm Leads Domain',
+    default_export_product_uom_domain = fields.Char(
+        string='Export Product UOMs Domain',
         default='[]'
     )
 
@@ -164,21 +171,6 @@ class OdooBackend(models.Model):
                 filters = eval(filters)
 
             import_batch(session, 'odooconnector.res.partner', backend.id,
-                         filters)
-
-        return True
-
-    @api.multi
-    def import_leads(self):
-        """ Import leads from external system """
-        session = ConnectorSession(self.env.cr, self.env.uid,
-                                   context=self.env.context)
-        for backend in self:
-            filters = self.import_lead_domain_filter
-            if filters and isinstance(filters, str):
-                filters = eval(filters)
-
-            import_batch(session, 'odooconnector.crm.lead', backend.id,
                          filters)
 
         return True
@@ -212,31 +204,42 @@ class OdooBackend(models.Model):
     @api.multi
     def export_partners(self):
         """ Export partners to external system """
-        self._export_records('res.partner')
+
+        self.with_context(domain)._export_records('res.partner')
+        return True
+
+    @api.multi
+    def export_res_users(self):
+        """ Export users to external system """
+        self.with_context(domain)._export_records('res.users')
         return True
 
     @api.multi
     def export_products(self):
         """ Export products to external system """
-        self._export_records('product.product')
+        self.with_context(domain)._export_records('product.product')
         return True
 
     @api.multi
-    def export_leads(self):
-        """ Export Leads to external system """
-        self._export_records('crm.lead')
+    def export_product_uom(self):
+        """ Export products to external system """
+        self.with_context(domain)._export_records('product.uom')
         return True
 
     @api.multi
     def export_pricelist(self):
         """ Export Pricelist to external system """
-        self._export_records('product.pricelist')
+        self.with_context(domain)._export_records('product.pricelist')
         return True
 
     @api.model
     def _export_records(self, model):
+        domain = []
+        if self._context.get('domain'):
+            domain = self._context.get('domain')
         session = ConnectorSession(self.env.cr, self.env.uid,
                                    context=self.env.context)
-        records = self.env[model].search([('oc_bind_ids','=',False)])
+        records = self.env[model].search(
+            domain + [('oc_bind_ids', '=', False)])
         for record in records:
             create_default_binding(session, model, record.id)

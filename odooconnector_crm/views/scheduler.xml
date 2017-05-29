@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="ir_cron_import_leads" model="ir.cron">
+            <field name="name">Import Leads</field>
+            <field eval="True" name="active" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall" />
+            <field eval="'odooconnector.backend'" name="model" />
+            <field eval="'import_crm_leads'" name="function" />
+            <field eval="" name="args" />
+            <field name="priority">1</field>
+        </record>
+
+    </data>
+</openerp>

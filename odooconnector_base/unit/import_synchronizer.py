@@ -99,10 +99,54 @@ class OdooImporter(Importer):
         _logger.debug('Updated a Odoo record')
         return
 
+    def _before_import(self):
+        """ Hook called before the import"""
+        return
+
     def _after_import(self, binding):
         """ Hook called at the end of the import
 
         Use this to import related stuff like translations.
+        """
+        return
+
+    def _import_dependency(self, external_id, binding_model,
+                           importer_class=None, always=False):
+        """ Import a dependency.
+
+        The importer class is a class or subclass of
+        :class:`OdooImporter`. A specific class can be defined.
+
+        :param external_id: id of the related binding to import
+        :param binding_model: name of the binding model for the relation
+        :type binding_model: str | unicode
+        :param importer_cls: :class:`openerp.addons.connector.\
+                                     connector.ConnectorUnit`
+                             class or parent class to use for the export.
+                             By default: OdooImporter
+        :type importer_cls: :class:`openerp.addons.connector.\
+                                    connector.MetaConnectorUnit`
+        :param always: if True, the record is updated even if it already
+                       exists, note that it is still skipped if it has
+                       not been modified on Magento since the last
+                       update. When False, it will import it only when
+                       it does not yet exist.
+        :type always: boolean
+        """
+        if not external_id:
+            return
+        if importer_class is None:
+            importer_class = OdooImporter
+        binder = self.binder_for(binding_model)
+        if always or binder.to_openerp(external_id) is None:
+            importer = self.unit_for(importer_class, model=binding_model)
+            importer.run(external_id)
+
+    def _import_dependencies(self):
+        """ Import the dependencies for the record
+
+        Import of dependencies can be done manually or by calling
+        :meth:`_import_dependency` for each dependency.
         """
         return
 
@@ -131,6 +175,10 @@ class OdooImporter(Importer):
             return _('Already up-to-date, skipt the import.')
 
         self.external_record = self._get_external_data()
+
+        self._before_import()
+        self._import_dependencies()
+
         # Map the data
         mapped_record = self._map_data()
 
@@ -227,7 +275,6 @@ class BatchImporter(Importer):
         _logger.debug("BatchImporter started")
         record_ids = self.backend_adapter.search(
             filters, model_name=self._ic_model_name)
-
         for record_id in record_ids:
             self._import_record(record_id, api=self.connector_env.api)
 

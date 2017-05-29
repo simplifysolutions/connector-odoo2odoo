@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_odooconnector_attachment_backend_form" model="ir.ui.view">
+            <field name="name">odooconnector.attachment.backend.form</field>
+            <field name="model">odooconnector.backend</field>
+            <field name="inherit_id" ref="odooconnector_base.view_odooconnector_backend_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[last()]" position="after">
+                    <page string="Attachments">
+                        <group string="Export">
+                            <group>
+                                <field name="default_export_ir_attachment"/>
+                                <field name="default_export_ir_attachment_domain"
+                                       attrs="{'invisible': [('default_export_ir_attachment', '=', False)]}"/>
+                                <button name="export_attachments"
+                                        type="object"
+                                        string="Export Attachments" />
+                            </group>
+                            
+                        </group>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</openerp>

@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-# © 2015 Malte Jacobi (maljac @ github)
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# -*- encoding: utf-8 -*-
+# Copyright (C) 2004-Today Simplify Solutions. All Rights Reserved
+
 {
     'name': 'Odoo Connector - Sale',
     'summary': 'Technical base for sale related Odoo Connector scenarios',
@@ -19,7 +19,10 @@
         'odooconnector_base',
     ],
     'data': [
+        'security/ir.model.access.csv',
         'views/sale_view.xml',
+        'views/sales_team.xml',
+        'views/account_tax_view.xml',
         'views/odooconnector_backend.xml',
         'views/scheduler.xml',
     ],

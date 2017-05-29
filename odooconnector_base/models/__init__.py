@@ -6,6 +6,6 @@ from . import partner
 from . import product
 from . import product_supplierinfo
 from . import product_uom
-from . import crm_lead
 from . import product_pricelist
 from . import product_pricelistversion
+from . import res_users
