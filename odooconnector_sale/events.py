@@ -49,3 +49,18 @@ def update_sale_order(session, model_name, record_id, fields=None):
             _logger.debug('Sync process start for "%s(%s)"',
                           model_name, binding.id)
             events.sync_object(session, ic_model_name, binding.id, fields)
+
+
+@events.on_record_unlink(model_names=['sale.order.line'])
+def unlink_sale_order_data(session, model_name, record_id):
+    if session.context.get('connector_no_export'):
+        return
+    _logger.debug('Record write triggered for %s(%s)', model_name, record_id)
+
+    ic_model_name = 'odooconnector.' + model_name
+    obj = session.env[model_name].browse(record_id)
+    for binding in obj.oc_bind_ids:
+        _logger.debug('Sync process start for "%s(%s)"',
+                      model_name, binding.id)
+        events.sync_unlink(session, ic_model_name, binding.id)
+
