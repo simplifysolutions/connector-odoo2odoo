@@ -15,6 +15,8 @@ from openerp.addons.odooconnector_base.unit.export_synchronizer import (
     OdooExporter)
 from openerp.addons.odooconnector_base.unit.import_synchronizer import import_record
 from ..unit.mapper import (OdooExportMapSaleChild, OdooImportMapSaleChild)
+from openerp.addons.odooconnector_base.unit.delete_synchronizer import (
+    OdooDeleter)
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -93,7 +95,7 @@ class OdooConnectorSaleOrderLine(models.Model):
         comodel_name='sale.order.line',
         string='Sale Order Line',
         required=True,
-        ondelete='restrict'
+        ondelete='cascade'
     )
 
     @api.model
@@ -698,3 +700,10 @@ class SaleOrderLineExportMapper(ExportMapper):
             if tax_id:
                 tax_ids.append(tax_id)
         return {'tax_id': [(6, 0, tax_ids)]}
+
+@oc_odoo
+class SaleOrderLineDeleter(OdooDeleter):
+    _model_name = ['odooconnector.sale.order.line']
+
+    def _get_remote_model(self):
+        return 'sale.order.line'
