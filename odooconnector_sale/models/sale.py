@@ -49,6 +49,15 @@ ORDER_STATUS_MAPPING_10_to_8 = {
     'done': 'done',
 }
 
+STATE_SEQUENCE_10={
+    'draft': 1,
+    'sent': 2,
+}
+
+STATE_SEQUENCE_8={
+    'draft': 1,
+    'sent': 2,
+}
 
 class OdooConnectorSaleOrder(models.Model):
     _name = 'odooconnector.sale.order'
@@ -359,7 +368,15 @@ class SaleOrderImportMapper(OdooImportMapper):
 
     @mapping
     def state(self, record):
-        state = ORDER_STATUS_MAPPING_10_to_8[record['state']]
+        binder = self.binder_for('odooconnector.sale.order')
+        order_id = binder.to_openerp(
+            record['id'], unwrap=True)
+        order_state=ORDER_STATUS_MAPPING_10_to_8[record['state']]
+        if order_id:
+            order=self.env['sale.order'].browse(order_id)
+            if (order_state in ('progress','done')) or (STATE_SEQUENCE_8[order.state]>STATE_SEQUENCE_10[record['state']] ):
+                return False
+        state = order_state
         return {'state': state}
 
 
