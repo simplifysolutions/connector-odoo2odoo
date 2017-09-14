@@ -374,7 +374,7 @@ class SaleOrderImportMapper(OdooImportMapper):
         order_state=ORDER_STATUS_MAPPING_10_to_8[record['state']]
         if order_id:
             order=self.env['sale.order'].browse(order_id)
-            if (order_state in ('progress','done')) or (STATE_SEQUENCE_8[order.state]>STATE_SEQUENCE_10[record['state']] ):
+            if order_state!='cancel' and ((order_state in ('progress','done')) or (STATE_SEQUENCE_8[order.state]>STATE_SEQUENCE_10[record['state']] )):
                 return False
         state = order_state
         return {'state': state}
