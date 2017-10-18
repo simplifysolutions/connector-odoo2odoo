@@ -131,6 +131,11 @@ class ProductPricelistItemExportMapper(ExportMapper):
             product_id = binder.to_backend(record.product_id.id, wrap=True)
             return {'product_id': product_id,
                     'applied_on': '0_product_variant'}
+    @mapping
+    def pricelist_id(self, record):
+        binder = self.binder_for('odooconnector.product.pricelist')
+        pricelist_id = binder.to_backend(record.price_version_id.pricelist_id.id, wrap=True)
+        return {'pricelist_id': pricelist_id,}
 
     @mapping
     def date_start(self, record):
