@@ -137,6 +137,7 @@ class ProductImportMapper(OdooImportMapper):
         if category:
             return {'categ_id': category.id}
 
+
 @oc_odoo
 class ProductSimpleImportMapper(OdooImportMapper):
     _model_name = ['odooconnector.product.product']
@@ -242,16 +243,16 @@ class ProductExportMapper(ExportMapper):
             return product_uom
 
     @mapping
-    def categ_id(self,record):
+    def categ_id(self, record):
         if not record.categ_id:
             return
 
         adapter = self.unit_for(OdooAdapter)
         categ_id = adapter.search([('name', '=', record.categ_id.name)],
-                                     model_name='product.category')
+                                  model_name='product.category')
         if not categ_id:
             categ_id = adapter.create({'name': record.categ_id.name},
-                                         model_name='product.category')
+                                      model_name='product.category')
         if isinstance(categ_id, list):
             categ_id = categ_id[0]
         return {'categ_id': categ_id}

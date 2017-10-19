@@ -213,8 +213,8 @@ class PartnerExportMapper(ExportMapper):
               ]
 
     @mapping
-    def notify_email(self,record):
-        return{'notify_email':'none'}
+    def notify_email(self, record):
+        return{'notify_email': 'none'}
 
     @mapping
     def property_pricelist_id(self, record):

@@ -2,7 +2,7 @@
 # © 2015 Malte Jacobi (maljac @ github)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 import logging
-from openerp import models, fields
+from openerp import models, fields, api
 from openerp.addons.connector.unit.mapper import mapping
 from openerp.addons.connector.unit.mapper import ImportMapper, ExportMapper
 from ..unit.import_synchronizer import (OdooImporter, DirectBatchImporter)
@@ -54,6 +54,16 @@ class ProductPricelistItem(models.Model):
         inverse_name='openerp_id',
         string='Odoo Binding'
     )
+
+    @api.multi
+    def unlink(self):
+        model_id = self.env['ir.model'].search(
+            [('model', '=', self._name)], limit=1)
+        checkpoints = self.env['connector.checkpoint'].search([
+            ('model_id', '=', model_id.id), ('record_id', 'in', self.ids)])
+        if checkpoints:
+            checkpoints.unlink()
+        return super(ProductPricelistItem, self).unlink()
 
 
 @oc_odoo
@@ -133,6 +143,13 @@ class ProductPricelistItemExportMapper(ExportMapper):
                     'applied_on': '0_product_variant'}
 
     @mapping
+    def pricelist_id(self, record):
+        binder = self.binder_for('odooconnector.product.pricelist')
+        pricelist_id = binder.to_backend(
+            record.price_version_id.pricelist_id.id, wrap=True)
+        return {'pricelist_id': pricelist_id, }
+
+    @mapping
     def date_start(self, record):
         return {'date_start': record.price_version_id.date_start}
 
@@ -184,6 +201,7 @@ class ProductPricelistItemExporter(OdooExporter):
                 model_name='odooconnector.product.pricelist.item',
                 context={'connector_no_export': True}
             )
+
 
 @oc_odoo
 class ProductPricelistItemDeleter(OdooDeleter):
